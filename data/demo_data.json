@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "purpose": "鞋链智排原型演示数据",
+    "notice": "所有工厂名称、订单编号、产能、物料和指标均为虚构模拟数据，仅用于比赛演示。",
+    "updated_at": "2026-09-13"
+  },
+  "orders": [
+    {
+      "id": "ORD-202609-001",
+      "brand": "云步男鞋",
+      "style_code": "YS-2609-B01",
+      "category": "商务男鞋",
+      "process_requirements": ["头层牛皮鞋面", "固特异外观线", "橡胶大底", "38-44码齐全"],
+      "quantity": 800,
+      "size_breakdown": {"38": 60, "39": 110, "40": 180, "41": 190, "42": 140, "43": 80, "44": 40},
+      "color": "深咖色",
+      "quality_level": "A类",
+      "delivery_deadline_days": 10,
+      "delivery_date": "2026-09-23",
+      "splittable": true,
+      "priority": "紧急",
+      "status": "待智能分配"
+    }
+  ],
+  "factories": [
+    {
+      "id": "FAC-A",
+      "name": "瓯越精工鞋业（模拟）",
+      "location": "永嘉县",
+      "categories": ["商务男鞋", "正装皮鞋"],
+      "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
+      "min_order_quantity": 300,
+      "available_capacity_by_day": [60, 60, 60, 60, 60, 60, 0, 50, 50, 40],
+      "earliest_start_date": "2026-09-14",
+      "material_status": {"头层牛皮": "充足", "橡胶大底": "充足", "深咖色染料": "充足"},
+      "on_time_rate": 0.97,
+      "cooperation_status": "长期合作",
+      "contact_reply_hours": 2,
+      "data_authorization": ["品类", "工艺", "可接产能", "物料满足状态", "最早开工日"]
+    },
+    {
+      "id": "FAC-B",
+      "name": "楠江鞋业制造（模拟）",
+      "location": "永嘉县",
+      "categories": ["商务男鞋", "休闲男鞋"],
+      "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
+      "min_order_quantity": 200,
+      "available_capacity_by_day": [40, 40, 40, 40, 40, 40, 0, 35, 35, 35],
+      "earliest_start_date": "2026-09-14",
+      "material_status": {"头层牛皮": "充足", "橡胶大底": "充足", "深咖色染料": "充足"},
+      "on_time_rate": 0.89,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 4,
+      "data_authorization": ["品类", "工艺", "可接产能", "物料满足状态", "最早开工日"]
+    },
+    {
+      "id": "FAC-C",
+      "name": "东蒙高端鞋业（模拟）",
+      "location": "永嘉县",
+      "categories": ["商务男鞋", "高端定制皮鞋"],
+      "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
+      "min_order_quantity": 500,
+      "available_capacity_by_day": [100, 100, 100, 100, 100, 100, 0, 100, 100, 100],
+      "earliest_start_date": "2026-09-14",
+      "material_status": {"头层牛皮": "部分缺料，预计第3天到货", "橡胶大底": "充足", "深咖色染料": "充足"},
+      "on_time_rate": 0.96,
+      "cooperation_status": "备选合作",
+      "contact_reply_hours": 8,
+      "data_authorization": ["品类", "工艺", "可接产能", "物料满足状态", "最早开工日"]
+    }
+  ],
+  "business_rules": {
+    "required_category_match": true,
+    "required_process_match": true,
+    "min_quantity_rule": "单厂分配数量不得低于工厂最小起订量",
+    "risk_levels": {
+      "high": ["无法在承诺交期前完成", "关键物料无明确到货时间", "关键工艺不匹配"],
+      "medium": ["历史准时率低于0.92", "物料为部分缺料但有明确到货时间", "预计交付仅比截止日期提前1天"],
+      "low": ["预计交付比截止日期提前2天及以上"]
+    },
+    "recommended_plan": {
+      "type": "split_order",
+      "allocations": [
+        {"factory_id": "FAC-A", "quantity": 500, "estimated_finish_day": 8},
+        {"factory_id": "FAC-B", "quantity": 300, "estimated_finish_day": 9}
+      ],
+      "reason": "A厂工艺和准时率最佳但10天可用产能不足以独立完成；B厂满足300双最小分配和交期要求。C厂虽有足够产能，但关键皮料需等待到货，存在物料不确定性。",
+      "human_approval_required": true
+    }
+  }
+}

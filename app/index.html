@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鞋链智排 - 小单快反协同 Agent</title>
+  <link rel="stylesheet" href="/app/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">S</span><span>鞋链智排</span><small>永嘉鞋服小单快反协同 Agent</small></div>
+      <div class="status"><span class="dot"></span>智能体服务正常</div>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">BRAND × FACTORY COLLABORATION</p>
+      <h1>把紧急订单，变成可执行的生产方案</h1>
+      <p>Agent 自动查询已授权的工厂能力、产能排期与物料状态，给出可解释的分配建议。</p>
+    </section>
+
+    <section class="workspace">
+      <aside class="card order-card">
+        <div class="section-title"><span>01</span><div><h2>紧急订单</h2><p>品牌方跟单员录入需求</p></div></div>
+        <form id="order-form">
+          <label>款号<input id="style-code" value="YS-2609-B01" /></label>
+          <label>品类<select id="category"><option>商务男鞋</option><option>休闲男鞋</option></select></label>
+          <label>订单数量<input id="quantity" type="number" value="800" min="1" /></label>
+          <label>交期（天）<input id="deadline" type="number" value="10" min="1" /></label>
+          <label>关键工艺<input id="process" value="头层牛皮鞋面、固特异外观线、橡胶大底" /></label>
+          <label>补充说明<textarea id="order-note" rows="3">客户要求按时交付，优先选择长期稳定合作工厂；如有风险请明确提示。</textarea></label>
+          <label class="toggle-row"><input id="splittable" type="checkbox" checked /><span>允许拆单生产</span></label>
+          <button id="run-agent" type="submit">启动真实 Agent <span>→</span></button>
+        </form>
+        <p id="data-note" class="data-note">正在检测大模型连接状态……</p>
+      </aside>
+
+      <section class="main-panel">
+        <div class="card agent-card">
+          <div class="section-title"><span>02</span><div><h2>Agent 执行过程</h2><p>自主规划并调用业务工具</p></div><span id="run-state" class="pill">等待任务</span></div>
+          <ol id="agent-steps" class="agent-steps">
+            <li><span class="step-icon">1</span><div><strong>解析订单需求</strong><small>等待品牌方提交订单</small></div><em>待执行</em></li>
+            <li><span class="step-icon">2</span><div><strong>调用工厂能力查询工具</strong><small>筛选品类和关键工艺匹配的工厂</small></div><em>待执行</em></li>
+            <li><span class="step-icon">3</span><div><strong>调用产能排期查询工具</strong><small>计算每家工厂在目标交期内的可完成数量</small></div><em>待执行</em></li>
+            <li><span class="step-icon">4</span><div><strong>调用物料风险查询工具</strong><small>核验关键材料的可用状态</small></div><em>待执行</em></li>
+            <li><span class="step-icon">5</span><div><strong>比较并生成调度方案</strong><small>在交期、风险与产能之间做出推荐</small></div><em>待执行</em></li>
+          </ol>
+        </div>
+        <div id="result-card" class="card result-card empty">
+          <div class="result-empty"><span>✦</span><h2>等待 Agent 完成分析</h2><p>提交左侧订单后，在这里查看推荐工厂、风险和下一步操作。</p></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="factory-section">
+      <div class="section-heading"><div><p class="eyebrow">AUTHORIZED DATA</p><h2>已授权工厂能力看板</h2></div><p>工厂只共享匹配所需的最小数据，不公开价格与客户信息。</p></div>
+      <div id="factory-grid" class="factory-grid"></div>
+    </section>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="/app/app.js"></script>
+</body>
+</html>
