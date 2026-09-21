@@ -4,10 +4,14 @@
 
 ## 第一次参与
 
+先在 GitHub 打开原仓库，点击 **Fork** 创建到朋友自己账号下的副本。朋友不需要原仓库写权限，也就不能直接改动原始 `main`。把 `<朋友用户名>` 替换为实际 GitHub 用户名：
+
 ```bash
-git clone https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git clone https://github.com/<朋友用户名>/shoe-chain-ai-scheduler.git
 cd shoe-chain-ai-scheduler
-git switch -c feature/你的功能名称
+git remote add upstream https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git fetch upstream
+git switch -c feature/你的功能名称 upstream/main
 ```
 
 完成修改后运行：
@@ -25,18 +29,20 @@ git commit -m "feat: 描述你的修改"
 git push -u origin feature/你的功能名称
 ```
 
-然后在 GitHub 创建 Pull Request，目标分支选择 `main`。合并前请让另一位协作者检查页面和测试结果。
+然后从朋友的 fork 在 GitHub 创建 Pull Request，目标选择 `zhanghaosen990-wq/shoe-chain-ai-scheduler` 的 `main`。合并前必须等待自动检查和仓库所有者审核。
 
 ## 两人协作规则（必须遵守）
 
 ### 朋友负责：在自己的分支修改并提交 PR
 
-朋友拥有仓库写入权限后，只在 `feature/*` 分支工作，不直接向 `main` 提交，也不自行合并 Pull Request：
+朋友使用自己的 fork，只在 `feature/*` 分支工作，不申请原仓库写权限，也不自行合并 Pull Request：
 
 ```bash
-git clone https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git clone https://github.com/<朋友用户名>/shoe-chain-ai-scheduler.git
 cd shoe-chain-ai-scheduler
-git switch -c feature/friend-功能名称 origin/main
+git remote add upstream https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git fetch upstream
+git switch -c feature/friend-功能名称 upstream/main
 
 # 修改后先自测
 npm test
@@ -47,7 +53,7 @@ git commit -m "feat: 描述本次修改"
 git push -u origin feature/friend-功能名称
 ```
 
-推送后在 GitHub 创建以 `main` 为目标的 Pull Request，填写改动内容和验证方式，等待所有者审核。不得修改或删除比赛说明 PDF、`data/demo_data.json` 等原始样本；确有需要时必须先在 PR 中说明并取得所有者同意。
+推送后从 fork 创建以原仓库 `main` 为目标的 Pull Request，填写改动内容和验证方式，等待所有者审核。不得修改或删除比赛说明 PDF、`data/demo_data.json` 等原始样本；确有需要时必须先在 PR 中说明并取得所有者同意。
 
 ### 所有者负责：下载朋友的版本、测试、批准和合并
 
@@ -77,10 +83,11 @@ npm run build
 
 ## 每次开始工作
 
+朋友每次从受保护的原仓库同步最新基线，再创建新分支：
+
 ```bash
-git switch main
-git pull --ff-only origin main
-git switch -c feature/新的功能名称
+git fetch upstream
+git switch -c feature/新的功能名称 upstream/main
 ```
 
 不要提交 `.env`、`data/portal-state.json`、`node_modules/`、`app/portal/dist/` 或 `outputs/`。`.env` 里可能有模型密钥。
@@ -90,8 +97,8 @@ git switch -c feature/新的功能名称
 如果 GitHub 提示分支落后：
 
 ```bash
-git fetch origin
-git rebase origin/main
+git fetch upstream
+git rebase upstream/main
 ```
 
 解决文件中的冲突标记后：
