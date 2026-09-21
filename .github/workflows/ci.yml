@@ -23,3 +23,5 @@ jobs:
         run: npm test
       - name: Build portal
         run: npm run build
+      - name: Build deployment image
+        run: docker build -t shoe-chain-demo:test .

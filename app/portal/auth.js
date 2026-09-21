@@ -38,7 +38,7 @@ function createAuth(storage){
   if(categories.length>30||categories.some(c=>c.length>40))throw Error('主营品类最多 30 项，每项最多 40 字');
   return {name,phone,contactName,description,categories};
  }
- function updateProfile(input){const user=current();if(!user)throw Error('请先登录账号');const profile=validateProfile(input);save(read().map(u=>u.id===user.id?{...u,...profile,profileReady:true}:u));return current();}
+ function updateProfile(input,accountId=current()?.id){const users=read(),user=users.find(u=>u.id===accountId);if(!user)throw Error('请先登录账号');const profile=validateProfile(input);const updated={...user,...profile,profileReady:true};save(users.map(u=>u.id===accountId?updated:u));return publicUser(updated);}
  return {initialize,current,register,login,updateProfile,validateProfile,logout:()=>storage.removeItem(SESSION),profiles:()=>read().map(publicUser)};
 }
 module.exports={createAuth};

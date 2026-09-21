@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.git
+.github
+node_modules
+app/portal/dist
+data/portal-state.json
+data/portal-state.json.tmp
+outputs
+tmp
+*.log
+.DS_Store

@@ -5,22 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>鞋链智排 - 小单快反协同 Agent</title>
   <link rel="stylesheet" href="/app/styles.css" />
+  <link rel="stylesheet" href="/app/ui/workspace.css" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark">S</span><span>鞋链智排</span><small>永嘉鞋服小单快反协同 Agent</small></div>
-      <div class="status"><span class="dot"></span>智能体服务正常</div>
+      <div class="status"><span class="dot"></span><span id="service-status">正在连接工作台</span></div>
     </header>
 
-    <section class="hero">
+    <section class="hero tech-surface">
       <p class="eyebrow">BRAND × FACTORY COLLABORATION</p>
       <h1>把紧急订单，变成可执行的生产方案</h1>
       <p>Agent 自动查询已授权的工厂能力、产能排期与物料状态，给出可解释的分配建议。</p>
     </section>
 
+    <nav class="workflow-stepper" aria-label="发单流程"><ol>
+      <li><button type="button" data-workflow-step="1"><span>01</span><div>上传<small>样品与设计单</small></div><i aria-hidden="true">✓</i></button></li>
+      <li><button type="button" data-workflow-step="2"><span>02</span><div>解析<small>核对 BOM 信息</small></div><i aria-hidden="true">✓</i></button></li>
+      <li><button type="button" data-workflow-step="3"><span>03</span><div>需求<small>明确生产要求</small></div><i aria-hidden="true">✓</i></button></li>
+      <li><button type="button" data-workflow-step="4"><span>04</span><div>执行<small id="workflow-execution-label">推荐与工厂确认</small></div><i aria-hidden="true">✓</i></button></li>
+    </ol></nav>
     <form id="order-form" class="intake-form">
-      <section class="card intake-card">
+      <section class="card intake-card" id="workflow-upload" tabindex="-1">
         <div class="section-title"><span>01</span><div><h2>样品图 & BOM 设计单</h2><p>先上传资料，Agent 将基于解析后的结构化需求进行匹配</p></div></div>
         <div class="upload-grid">
           <div class="upload-panel">
@@ -38,14 +45,15 @@
               <span class="upload-icon">↥</span><strong>上传 BOM 设计单</strong><small>支持拖拽 PDF、Excel 或图片文件</small>
             </div>
             <div class="bom-actions"><p>选择文件后不会自动识别，请确认资料无误后再开始。</p><button id="start-bom-recognition" type="button" disabled>开始识别 BOM <span>→</span></button></div>
+            <div class="demo-tools"><label for="demo-kind">演示样例</label><select id="demo-kind"><option value="shoe">商务男鞋</option><option value="apparel">女装</option></select><button id="fill-demo" type="button">一键填入演示数据</button><button id="undo-demo" type="button" hidden>撤销填充</button></div><img id="demo-bom-preview" class="demo-preview" hidden alt="演示 BOM 设计单预览"/><p id="demo-source" class="demo-label" hidden>演示数据 · 预置结果，请核对后使用。</p>
             <div id="bom-file-state" class="bom-file-state" hidden></div>
           </div>
         </div>
       </section>
 
-      <section class="card bom-card">
+      <section class="card bom-card" id="workflow-bom" tabindex="-1">
         <div class="section-title"><span>02</span><div><h2>BOM 智能解析详情</h2><p>识别结果已结构化展示，所有字段均可人工修改与二次校对</p></div><span id="bom-status" class="pill">等待上传</span></div>
-        <div id="bom-loading" class="parsing-state" hidden><span class="spinner"></span><span>正在智能解析 BOM 单，请稍候...</span><small>正在提取物料、工艺和尺码信息</small></div>
+        <div id="bom-loading" class="parsing-state" hidden><span class="spinner"></span><span>正在智能解析 BOM 单，请稍候...</span><small>正在提取物料、工艺和尺码信息</small><div class="skeleton-block" aria-hidden="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div></div>
         <div class="bom-form-grid">
           <label>款式名称<input id="bom-style-name" data-bom-field="style_name" value="" placeholder="例如：轻商务德训鞋" /></label>
           <label>商品型号 / 货号<input id="bom-sku-code" data-bom-field="sku_code" value="" placeholder="例如：YS-2609-B01" /></label>
@@ -59,7 +67,7 @@
         <p id="bom-source-hint" class="source-hint">尚未上传 BOM，以上字段也可以直接人工填写。</p>
       </section>
 
-      <section class="card requirement-card">
+      <section class="card requirement-card" id="workflow-demand" tabindex="-1">
         <div class="section-title"><span>03</span><div><h2>生产与合作需求</h2><p>BOM 识别后自动建议，可人工调整；面辅料齐全时默认建议带料加工，请核实供料方</p></div></div>
         <div class="requirement-grid">
           <label>合作模式<select id="cooperation-mode"><option>包工包料</option><option>带料加工（纯加工）</option><option>其他/协商模式</option></select></label>
@@ -74,7 +82,7 @@
     </form>
 
     <section class="workspace">
-      <section class="main-panel">
+      <section class="main-panel" id="workflow-execute" tabindex="-1">
         <div class="card agent-card">
           <div class="section-title"><span>04</span><div><h2>Agent 执行过程</h2><p>结合需求与工厂能力推荐候选，品牌自主选择</p></div><span id="run-state" class="pill">等待任务</span></div>
           <ol id="agent-steps" class="agent-steps">
@@ -86,21 +94,23 @@
           </ol>
         </div>
         <div id="result-card" class="card result-card empty">
-          <div class="result-empty"><span>✦</span><h2>等待 Agent 完成分析</h2><p>提交左侧订单后，在这里查看推荐工厂、风险和下一步操作。</p></div>
+          <div class="result-empty"><span>✦</span><h2>等待 Agent 完成分析</h2><p>提交上方需求后，在这里查看推荐工厂、风险和下一步操作。</p></div>
         </div>
       </section>
     </section>
 
     <section class="factory-section">
       <div class="section-heading"><div><p class="eyebrow">AUTHORIZED DATA</p><h2>已授权工厂能力看板</h2></div><p>工厂只共享匹配所需的最小数据，不公开价格与客户信息。</p></div>
-      <div id="factory-grid" class="factory-grid"></div>
+      <div id="factory-grid" class="factory-grid" aria-busy="true"><div class="card skeleton-block"><div class="skeleton"></div><div class="skeleton"></div></div><div class="card skeleton-block"><div class="skeleton"></div><div class="skeleton"></div></div><div class="card skeleton-block"><div class="skeleton"></div><div class="skeleton"></div></div></div>
     </section>
   </main>
-  <div id="toast" class="toast"></div>
+
+  <script src="/app/ui/runtime.js"></script>
   <script src="/app/payload.js"></script>
   <script src="/app/interaction-state.js"></script>
   <script src="/app/presentation.js"></script>
   <script src="/app/bom-linkage.js"></script>
   <script src="/app/app.js"></script>
+  <script src="/app/ui/workspace.js"></script>
 </body>
 </html>

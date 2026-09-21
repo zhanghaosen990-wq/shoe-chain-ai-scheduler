@@ -40,6 +40,29 @@ test('boolean and whitespace values are not valid capacity numbers', t => {
  assert.throws(() => store.updateFactory('FAC-A',{...input,dailyCapacity:true}));
  assert.throws(() => store.updateFactory('FAC-A',{...input,min_order_quantity:' '}));
 });
+test('capacity-only save ignores showcase and account fields, preserving the latest showcase', t => {
+ const {store,file}=setup(t);const before=store.snapshot().factories[0];
+ store.updateFactory('FAC-A',{section:'showcase',description:'最新介绍',images:[]});
+ const next=store.updateFactory('FAC-A',{...before,section:'capacity',dailyCapacity:175,description:'过期介绍',name:'覆盖企业名'}).factories[0];
+ assert.equal(next.dailyCapacity,175);assert.equal(next.description,'最新介绍');assert.equal(next.name,before.name);
+ assert.equal(createStore(file).snapshot().factories[0].description,'最新介绍');
+});
+test('new factories can save showcase before completing required capacity fields',t=>{
+ const {store,file}=setup(t);
+ store.syncProfile({id:'new-showcase',role:'factory',name:'新工厂',categories:[],description:''});
+ const f=store.updateFactory('new-showcase',{section:'showcase',description:'专注小单制造',images:[],dailyCapacity:999,categories:['篡改']}).factories.find(f=>f.id==='new-showcase');
+ assert.equal(f.description,'专注小单制造');assert.equal(f.dailyCapacity,0);assert.deepEqual(f.categories,[]);
+ assert.equal(createStore(file).snapshot().factories.find(f=>f.id==='new-showcase').description,'专注小单制造');
+});
+test('scoped saves reject unknown sections, incomplete sections, invalid images and non-factory actors without writes',t=>{
+ const {store}=setup(t);const before=store.snapshot().factories;
+ assert.throws(()=>store.updateFactory('FAC-A',{...before[0],section:'unknown'}),/分组/);
+ assert.throws(()=>store.updateFactory('FAC-A',{section:'capacity',dailyCapacity:100}));
+ assert.throws(()=>store.updateFactory('FAC-A',{section:'showcase',description:'缺少图片字段'}));
+ assert.throws(()=>store.updateFactory('FAC-A',{section:'showcase',description:'test',images:['invalid']}));
+ assert.throws(()=>store.updateFactory('BRAND-A',{section:'showcase',description:'test',images:[]}));
+ assert.deepEqual(store.snapshot().factories,before);
+});
 test('new profiles have empty history and editable factory capability defaults',t=>{
  const {store}=setup(t);
  const next=store.syncProfile({id:'new-factory',role:'factory',name:'新工厂',contactName:'李女士',phone:'13800138000',categories:['运动鞋'],description:'精细制造'});

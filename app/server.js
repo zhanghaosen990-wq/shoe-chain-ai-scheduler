@@ -33,7 +33,7 @@ const model = process.env.AI_MODEL || (provider === 'deepseek' ? 'deepseek-chat'
 
 const reviewAnalyzer = require('./review-analysis').createReviewAnalyzer(portalStore,{provider,apiKey,model});
 
-const contentTypes = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8'};
+const contentTypes = {'.png':'image/png','.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8'};
 
 const port = Number(process.env.PORT) || 4173;
 const maxBodySize = 32 * 1024 * 1024;
@@ -149,7 +149,7 @@ http.createServer(async (request, response) => {
   }
   const portalRoute = urlPath === '/' || urlPath === '/brand' || urlPath === '/factory' || /^\/profile\/[^/]+$/.test(urlPath);
   const cleanPath = portalRoute ? '/app/portal/index.html' : urlPath === '/workspace' ? '/app/index.html' : urlPath;
-  const publicAsset = /^\/app\/(?:portal\/(?:index.html|dist\/(?:main.js|main.css))|index.html|styles.css|app.js|payload.js|interaction-state.js|presentation.js|bom-linkage.js)$/.test(cleanPath);
+  const publicAsset = /^\/app\/(?:portal\/(?:index.html|dist\/(?:main.js|main.css))|ui\/(?:runtime.js|workspace.js|tokens.css|workspace.css)|assets\/(?:demo-shoe.png|demo-apparel.png)|index.html|styles.css|app.js|payload.js|interaction-state.js|presentation.js|bom-linkage.js)$/.test(cleanPath);
   if (!publicAsset) { response.writeHead(404).end('Not found'); return; }
   const filename = path.resolve(root, `.${cleanPath}`);
   if (!filename.startsWith(root)) {
@@ -161,7 +161,7 @@ http.createServer(async (request, response) => {
       response.writeHead(error.code === 'ENOENT' ? 404 : 500).end('Not found');
       return;
     }
-    response.writeHead(200, {'Content-Type': contentTypes[path.extname(filename)] || 'application/octet-stream'});
+    response.writeHead(200, {'Content-Type': contentTypes[path.extname(filename)] || 'application/octet-stream', 'Cache-Control': 'no-cache'});
     response.end(content);
   });
 }).listen(port, () => console.log(`鞋链智排原型运行于 http://localhost:${port}`));

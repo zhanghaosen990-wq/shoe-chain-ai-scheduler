@@ -21,6 +21,7 @@
 
   function getBomRecognitionUiState(state) {
     const statusMap = {
+      demo: { statusClass: 'pill done', statusText: '演示数据 · 预置结果' },
       idle: { statusClass: 'pill', statusText: '等待上传' },
       ready: { statusClass: 'pill', statusText: '待识别' },
       recognizing: { statusClass: 'pill running', statusText: '识别中' },

@@ -18,3 +18,10 @@ test('registration validates role, duplicate name, credentials and restores the 
  auth.logout();assert.equal(auth.current(),null);assert.equal((await auth.login('new_user','123456')).id,user.id);
  assert.equal(JSON.stringify(user).includes('123456'),false);
 });
+test('background profile completion updates its original account without replacing a newer session',async()=>{
+ const auth=createAuth(storage());await auth.initialize();const first=await auth.login('brand_01','123456');const second=await auth.login('brand_02','123456');
+ auth.updateProfile({name:'第一家品牌更新',categories:['商务男鞋']},first.id);
+ assert.equal(auth.current().id,second.id);assert.equal(auth.current().name,second.name);
+ assert.equal(auth.profiles().find(u=>u.id===first.id).name,'第一家品牌更新');
+ auth.logout();auth.updateProfile({name:'后台保存完成',categories:['商务男鞋']},first.id);assert.equal(auth.current(),null);
+});
