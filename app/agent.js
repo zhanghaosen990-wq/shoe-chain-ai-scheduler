@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const { recommendFactories } = require('./recommendations');
+const { buildDashboard } = require('./presentation');
 
 const root = path.resolve(__dirname, '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data', 'demo_data.json'), 'utf8'));
@@ -21,9 +23,9 @@ function matchesProcesses(factory, processes) {
 function factoryByIds(ids) {
   return data.factories.filter((factory) => ids.includes(factory.id));
 }
-function evaluatePlan(order) {
-  const capabilityMatched = data.factories.filter((factory) => factory.categories.includes(order.category) && matchesProcesses(factory, order.required_processes));
-  const viable = capabilityMatched.filter((factory) => capacityInDeadline(factory, order.deadline_days) >= factory.min_order_quantity);
+function evaluatePlan(order, factories = data.factories) {
+  const capabilityMatched = factories.filter((factory) => factory.categories.includes(order.category) && matchesProcesses(factory, order.required_processes));
+  const viable = capabilityMatched.filter((factory) => order.quantity >= factory.min_order_quantity && capacityInDeadline(factory, order.deadline_days) >= factory.min_order_quantity);
   const safe = viable.filter((factory) => !Object.values(factory.material_status).some((value) => value.includes('缺料'))).sort((a, b) => b.on_time_rate - a.on_time_rate);
   if (!safe.length) return { status: 'human_review', reason: '没有物料状态明确、且满足品类、工艺与最小起订量要求的工厂。', allocations: [] };
   const first = safe[0];
@@ -50,7 +52,7 @@ function runTool(name, args) {
 }
 
 async function apiRequest(body, config) {
-  const endpoint = config.provider === 'deepseek' ? 'https://api.deepseek.com/chat/completions' : 'https://api.openai.com/v1/chat/completions';
+  const endpoint = config.provider === 'deepseek' ? 'https://api.deepseek.com/v1/chat/completions' : 'https://api.openai.com/v1/chat/completions';
   const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` }, body: JSON.stringify(body) });
   let result;
   try { result = await response.json(); } catch { throw new Error(`AI 服务返回了无法解析的响应（${response.status}）`); }
@@ -59,32 +61,20 @@ async function apiRequest(body, config) {
 }
 
 async function runAgent(order, config) {
-  const orderContext = JSON.stringify(order, null, 2);
-  const instructions = `你是“鞋链智排”的鞋服供应链调度 Agent。你只能根据工具返回的模拟业务数据做判断，不能杜撰工厂数据。对于每一笔订单，必须依次调用：query_factory_capabilities、query_capacity_schedule、query_material_status、evaluate_dispatch_plan。最后用简洁中文说明推荐方案、理由、风险和必须由人工确认的动作。即使有推荐方案，也不得自动下单。`;
-  const history = [{ role: 'system', content: instructions }, { role: 'user', content: `请处理以下品牌方订单，并按要求调用工具：\n${orderContext}` }];
-  const logs = [];
-  let latestPlan = null;
-  for (let turn = 0; turn < 8; turn += 1) {
-    const response = await apiRequest({ model: config.model, messages: history, tools: toolDefinitions, tool_choice: 'auto', temperature: 0.2 }, config);
-    const message = response.choices?.[0]?.message;
-    if (!message) throw new Error('AI 服务未返回有效消息。');
-    const calls = message.tool_calls || [];
-    if (!calls.length) return { answer: message.content || 'Agent 已完成分析。', logs, plan: latestPlan };
-    history.push(message);
-    const outputs = calls.map((call) => {
-      let args;
-      const name = call.function?.name;
-      try { args = JSON.parse(call.function?.arguments || '{}'); } catch { throw new Error(`工具参数无法解析：${name || '未知工具'}`); }
-      const output = runTool(name, args);
-      if (name === 'evaluate_dispatch_plan') latestPlan = output;
-      logs.push({ tool: name, summary: toolSummary(name, output) });
-      return { role: 'tool', tool_call_id: call.id, content: JSON.stringify(output) };
-    });
-    history.push(...outputs);
-  }
-  throw new Error('Agent 调用工具次数过多，已停止本次分析。');
+  const factories=JSON.parse(JSON.stringify(data.factories));
+  const recommendation=await recommendFactories(order,factories,config);
+  // Automatic planning remains an optional conservative reference, not a submission gate.
+  const plan=evaluatePlan(order,factories);
+  const dashboard=buildDashboard(order,plan,factories);
+  dashboard.selectionMode=true;dashboard.status='待品牌选择工厂';dashboard.tone='warning';
+  dashboard.risks=[recommendation.notice,'推荐不代表工厂已接单，报价、工艺和排期由工厂确认。'];
+  dashboard.metrics[0]={label:'工厂报价',value:'待工厂确认',note:'不影响提交合作需求'};
+  dashboard.metrics[3]={label:'物料适配',value:'待工厂核验',note:'本单 BOM 物料适配与备料需工厂确认'};
+  return { ...recommendation, plan, dashboard, factories,
+    answer:recommendation.candidates.map(c=>`${c.name}：${c.reasons.join('；')}。${c.semantic_note||''} 待确认工艺：${c.unconfirmed_processes.join('、')||'无额外词条'}。${c.risks.join('；')}`).join('\n\n')||'暂无明确匹配候选，可查看全部工厂并手动选择，提交后由工厂判断是否承接。',
+    logs:[{tool:'query_factory_capabilities',summary:`找到 ${recommendation.candidates.length} 家相关候选工厂，具体工艺待确认`},{tool:'query_capacity_schedule',summary:`读取 ${factories.length} 家工厂最新产能，风险不阻止提交`},{tool:'query_material_status',summary:'物料记录仅供参考，本单适配待工厂确认'},{tool:'evaluate_dispatch_plan',summary:'推荐已完成，请品牌选厂并分配数量'}]
+  };
 }
-
 async function generateInquiryMessages(order, allocations, config) {
   if (!Array.isArray(allocations) || !allocations.length) throw new Error('缺少可用于询单的工厂分配方案。');
   const factories = allocations.map((allocation) => {

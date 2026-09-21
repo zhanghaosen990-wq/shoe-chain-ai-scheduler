@@ -13,4 +13,5 @@ cd "$PROJECT_DIR"
 echo "鞋链智排原型正在启动……"
 echo "请在浏览器打开：http://localhost:4173"
 echo "保持此窗口打开；按 Control + C 可停止服务。"
+"$RUNTIME_NODE" -e 'require("esbuild").buildSync({entryPoints:["app/portal/main.jsx"],bundle:true,minify:true,outfile:"app/portal/dist/main.js",loader:{".css":"css"}})'
 "$RUNTIME_NODE" app/server.js

@@ -19,25 +19,64 @@
       <p>Agent 自动查询已授权的工厂能力、产能排期与物料状态，给出可解释的分配建议。</p>
     </section>
 
-    <section class="workspace">
-      <aside class="card order-card">
-        <div class="section-title"><span>01</span><div><h2>紧急订单</h2><p>品牌方跟单员录入需求</p></div></div>
-        <form id="order-form">
-          <label>款号<input id="style-code" value="YS-2609-B01" /></label>
-          <label>品类<select id="category"><option>商务男鞋</option><option>休闲男鞋</option></select></label>
-          <label>订单数量<input id="quantity" type="number" value="800" min="1" /></label>
-          <label>交期（天）<input id="deadline" type="number" value="10" min="1" /></label>
-          <label>关键工艺<input id="process" value="头层牛皮鞋面、固特异外观线、橡胶大底" /></label>
-          <label>补充说明<textarea id="order-note" rows="3">客户要求按时交付，优先选择长期稳定合作工厂；如有风险请明确提示。</textarea></label>
-          <label class="toggle-row"><input id="splittable" type="checkbox" checked /><span>允许拆单生产</span></label>
-          <button id="run-agent" type="submit">启动真实 Agent <span>→</span></button>
-        </form>
-        <p id="data-note" class="data-note">正在检测大模型连接状态……</p>
-      </aside>
+    <form id="order-form" class="intake-form">
+      <section class="card intake-card">
+        <div class="section-title"><span>01</span><div><h2>样品图 & BOM 设计单</h2><p>先上传资料，Agent 将基于解析后的结构化需求进行匹配</p></div></div>
+        <div class="upload-grid">
+          <div class="upload-panel">
+            <div class="upload-panel-heading"><div><h3>样品图片</h3><p>支持鞋子或衣服样品图，可上传多张</p></div><span class="upload-badge">JPG / PNG</span></div>
+            <div id="sample-dropzone" class="dropzone" role="button" tabindex="0" aria-label="上传样品图片">
+              <input id="sample-images-input" class="file-input" type="file" accept="image/jpeg,image/png" multiple />
+              <span class="upload-icon">＋</span><strong>拖拽图片至此，或点击选择</strong><small>单张图片不超过 5MB</small>
+            </div>
+            <div id="sample-preview" class="preview-grid" aria-live="polite"></div>
+          </div>
+          <div class="upload-panel">
+            <div class="upload-panel-heading"><div><h3>BOM 设计单</h3><p>选择文件后点击“开始识别”，结果将回填下方 BOM 表单</p></div><span class="upload-badge">PDF / XLSX / 图片</span></div>
+            <div id="bom-dropzone" class="dropzone" role="button" tabindex="0" aria-label="上传 BOM 设计单">
+              <input id="bom-file-input" class="file-input" type="file" accept=".pdf,.xls,.xlsx,image/jpeg,image/png" />
+              <span class="upload-icon">↥</span><strong>上传 BOM 设计单</strong><small>支持拖拽 PDF、Excel 或图片文件</small>
+            </div>
+            <div class="bom-actions"><p>选择文件后不会自动识别，请确认资料无误后再开始。</p><button id="start-bom-recognition" type="button" disabled>开始识别 BOM <span>→</span></button></div>
+            <div id="bom-file-state" class="bom-file-state" hidden></div>
+          </div>
+        </div>
+      </section>
 
+      <section class="card bom-card">
+        <div class="section-title"><span>02</span><div><h2>BOM 智能解析详情</h2><p>识别结果已结构化展示，所有字段均可人工修改与二次校对</p></div><span id="bom-status" class="pill">等待上传</span></div>
+        <div id="bom-loading" class="parsing-state" hidden><span class="spinner"></span><span>正在智能解析 BOM 单，请稍候...</span><small>正在提取物料、工艺和尺码信息</small></div>
+        <div class="bom-form-grid">
+          <label>款式名称<input id="bom-style-name" data-bom-field="style_name" value="" placeholder="例如：轻商务德训鞋" /></label>
+          <label>商品型号 / 货号<input id="bom-sku-code" data-bom-field="sku_code" value="" placeholder="例如：YS-2609-B01" /></label>
+          <label>颜色与色号<input id="bom-color-info" data-bom-field="color_info" value="" placeholder="例如：咖啡棕 / C-07" /></label>
+          <label>鞋服尺寸 / 码段<input id="bom-size-range" data-bom-field="size_range" value="" placeholder="例如：39-44" /></label>
+          <div class="bom-detail span-2"><label for="bom-craftsmanship">制作工艺要求</label><div class="bom-tags" data-bom-tags="craftsmanship"></div><details class="bom-edit"><summary>编辑工艺关键词</summary><textarea aria-label="制作工艺要求" id="bom-craftsmanship" data-bom-field="craftsmanship" rows="2" placeholder="核心工艺，用分号分隔"></textarea></details></div>
+          <label class="bom-detail">面料明细<small>名称 / 成分 · 单耗或单价（如有）</small><textarea id="bom-fabric-details" data-bom-field="fabric_details" rows="3" placeholder="水晶渐变织网 / 单耗 1.2 米/件；每行一种面料"></textarea></label>
+          <div class="bom-detail"><label for="bom-accessory-details">主要辅料</label><div class="bom-tags" data-bom-tags="accessory_details"></div><details class="bom-edit"><summary>编辑辅料标签</summary><textarea aria-label="辅料明细" id="bom-accessory-details" data-bom-field="accessory_details" rows="3" placeholder="水钻珠串多层项链；方糖黑色钻；方糖暗红钻"></textarea></details></div>
+          <label class="bom-detail span-2">物料摘要 / 核价参考<textarea id="bom-material-info" data-bom-field="material_info" rows="2" placeholder="例如：订单模式 CMT；预估核价 800 元/件"></textarea><small>核价仅作参考，最终价格需工厂确认</small></label>
+        </div>
+        <p id="bom-source-hint" class="source-hint">尚未上传 BOM，以上字段也可以直接人工填写。</p>
+      </section>
+
+      <section class="card requirement-card">
+        <div class="section-title"><span>03</span><div><h2>生产与合作需求</h2><p>BOM 识别后自动建议，可人工调整；面辅料齐全时默认建议带料加工，请核实供料方</p></div></div>
+        <div class="requirement-grid">
+          <label>合作模式<select id="cooperation-mode"><option>包工包料</option><option>带料加工（纯加工）</option><option>其他/协商模式</option></select></label>
+          <label>调度品类<select id="category"><option>商务男鞋</option><option>休闲男鞋</option><option>运动鞋</option><option>女装</option><option>晚礼服</option><option>其他/待确认</option></select></label>
+          <label>订单数量<input id="quantity" type="number" value="800" min="1" /></label>
+          <label>目标交期（天）<input id="deadline" type="number" value="10" min="1" /></label>
+          <label class="span-2">特殊要求与注意事项<textarea id="special-notes" rows="4" placeholder="可填写交期限制、品质标准、包装要求、特殊工艺提醒等">客户要求按时交付，优先选择长期稳定合作工厂；如有风险请明确提示。</textarea></label>
+          <label class="toggle-row span-2"><input id="splittable" type="checkbox" checked /><span>允许拆单生产，接受多个合作工厂协同完成</span></label>
+        </div>
+        <div class="submit-row"><p id="data-note" class="data-note">正在检测大模型连接状态……</p><button id="run-agent" type="submit">智能推荐工厂 <span>→</span></button></div>
+      </section>
+    </form>
+
+    <section class="workspace">
       <section class="main-panel">
         <div class="card agent-card">
-          <div class="section-title"><span>02</span><div><h2>Agent 执行过程</h2><p>自主规划并调用业务工具</p></div><span id="run-state" class="pill">等待任务</span></div>
+          <div class="section-title"><span>04</span><div><h2>Agent 执行过程</h2><p>结合需求与工厂能力推荐候选，品牌自主选择</p></div><span id="run-state" class="pill">等待任务</span></div>
           <ol id="agent-steps" class="agent-steps">
             <li><span class="step-icon">1</span><div><strong>解析订单需求</strong><small>等待品牌方提交订单</small></div><em>待执行</em></li>
             <li><span class="step-icon">2</span><div><strong>调用工厂能力查询工具</strong><small>筛选品类和关键工艺匹配的工厂</small></div><em>待执行</em></li>
@@ -58,6 +97,10 @@
     </section>
   </main>
   <div id="toast" class="toast"></div>
+  <script src="/app/payload.js"></script>
+  <script src="/app/interaction-state.js"></script>
+  <script src="/app/presentation.js"></script>
+  <script src="/app/bom-linkage.js"></script>
   <script src="/app/app.js"></script>
 </body>
 </html>
