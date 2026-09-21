@@ -25,3 +25,14 @@ test('background profile completion updates its original account without replaci
  assert.equal(auth.profiles().find(u=>u.id===first.id).name,'第一家品牌更新');
  auth.logout();auth.updateProfile({name:'后台保存完成',categories:['商务男鞋']},first.id);assert.equal(auth.current(),null);
 });
+test('plain HTTP crypto surface can initialize, register and log in demo accounts',async t=>{
+ const original=Object.getOwnPropertyDescriptor(globalThis,'crypto');let cursor=0;
+ Object.defineProperty(globalThis,'crypto',{configurable:true,value:{getRandomValues(bytes){for(let i=0;i<bytes.length;i++)bytes[i]=(cursor++*29+17)&255;return bytes;}}});
+ t.after(()=>original?Object.defineProperty(globalThis,'crypto',original):delete globalThis.crypto);
+ const local=storage(),auth=createAuth(local);await auth.initialize();
+ assert.equal((await auth.login('brand_01','123456')).id,'BRAND-A');
+ const registered=await auth.register({username:'http_user',password:'safe-demo-pass',name:'HTTP 演示企业',role:'brand'});
+ assert.match(registered.id,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+ auth.logout();assert.equal((await auth.login('http_user','safe-demo-pass')).id,registered.id);
+ assert.equal(local.getItem('shoe-users-v1').includes('safe-demo-pass'),false);
+});

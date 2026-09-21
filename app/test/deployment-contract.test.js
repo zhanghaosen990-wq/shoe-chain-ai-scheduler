@@ -36,3 +36,9 @@ test('deployment instructions explicitly cover domestic public access and collab
   assert.match(contributing, /后端负责人/);
   assert.match(contributing, /main/);
 });
+
+test('plain HTTP public-IP build does not require secure-context-only browser UUID APIs', () => {
+  for (const file of ['app/portal/auth.js', 'app/portal/main.jsx', 'app/portal/order-flow.jsx', 'app/app.js']) {
+    assert.doesNotMatch(read(file), /crypto\.randomUUID\(\)/, `${file} must use the compatible runtime identifier helper`);
+  }
+});

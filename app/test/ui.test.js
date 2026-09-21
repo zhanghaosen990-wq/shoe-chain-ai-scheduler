@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {createNotifications, createOperations, workflowStep, validBridgeMessage} = require('../ui/runtime');
+const {createNotifications, createOperations, workflowStep, validBridgeMessage, randomId, sha256} = require('../ui/runtime');
 test('notifications deduplicate, retain latest three, and distinguish errors',()=>{
  const n=createNotifications();n.push('saved');n.push('saved');assert.equal(n.items.length,1);
  n.push('second');n.push('third');n.push('failed',{type:'error'});
@@ -35,4 +35,9 @@ test('operation subscribers observe terminal outcomes after the initiating view 
  const observed=[];const stop=jobs.subscribe(()=>observed.push(jobs.snapshot('profile:a')));release('saved');await promise;stop();
  assert.equal(observed.at(-1).id,operation.id);assert.equal(observed.at(-1).status,'success');assert.equal(jobs.busy('profile:a'),false);
  await assert.rejects(jobs.run('profile:a',()=>Promise.reject(Error('offline')),{scope:'profile'}));assert.equal(jobs.snapshot('profile:a').status,'error');assert.equal(jobs.snapshot('profile:a').error.message,'offline');
+});
+test('identifier and SHA-256 helpers work on a plain HTTP crypto surface',async()=>{
+ let cursor=0;const insecureCrypto={getRandomValues(bytes){for(let i=0;i<bytes.length;i++)bytes[i]=(cursor++*31+7)&255;return bytes;}};
+ assert.match(randomId(insecureCrypto),/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+ assert.equal(await sha256('abc',insecureCrypto),'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
 });
