@@ -8,6 +8,7 @@
 
 # Generated previews and temporary files
 tmp/
+outputs/
 
 # Logs
 *.log
