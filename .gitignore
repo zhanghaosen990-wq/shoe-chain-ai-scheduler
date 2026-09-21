@@ -11,3 +11,7 @@ tmp/
 
 # Logs
 *.log
+node_modules/
+data/portal-state.json
+data/portal-state.json.tmp
+app/portal/dist/
