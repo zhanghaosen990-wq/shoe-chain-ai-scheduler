@@ -79,13 +79,52 @@ test('multipart parser extracts the uploaded BOM file without an upstream API', 
 });
 
 test('XLSX BOM files are converted to text before Chat parsing', () => {
-  const fs = require('node:fs');
-  const path = require('node:path');
-  const filePath = path.join(__dirname, '../../outputs/01a0bd33-08f6-7e40-bf8d-5d225ae372c8/鞋服小单快反_BOM设计单_测试.xlsx');
+  // Build the smallest valid uncompressed XLSX-like ZIP in memory so CI does
+  // not depend on a developer's ignored `outputs/` directory.
+  const zip = entries => {
+    const local = [], central = [];
+    let offset = 0;
+    for (const [name, value] of Object.entries(entries)) {
+      const nameBuffer = Buffer.from(name);
+      const data = Buffer.from(value);
+      const header = Buffer.alloc(30);
+      header.writeUInt32LE(0x04034b50, 0);
+      header.writeUInt16LE(20, 4);
+      header.writeUInt16LE(0, 6);
+      header.writeUInt16LE(0, 8);
+      header.writeUInt32LE(data.length, 18);
+      header.writeUInt32LE(data.length, 22);
+      header.writeUInt16LE(nameBuffer.length, 26);
+      local.push(header, nameBuffer, data);
+      const directory = Buffer.alloc(46);
+      directory.writeUInt32LE(0x02014b50, 0);
+      directory.writeUInt16LE(20, 4);
+      directory.writeUInt16LE(20, 6);
+      directory.writeUInt16LE(0, 8);
+      directory.writeUInt16LE(0, 10);
+      directory.writeUInt32LE(data.length, 20);
+      directory.writeUInt32LE(data.length, 24);
+      directory.writeUInt16LE(nameBuffer.length, 28);
+      directory.writeUInt32LE(offset, 42);
+      central.push(directory, nameBuffer);
+      offset += header.length + nameBuffer.length + data.length;
+    }
+    const centralBuffer = Buffer.concat(central);
+    const end = Buffer.alloc(22);
+    end.writeUInt32LE(0x06054b50, 0);
+    end.writeUInt16LE(Object.keys(entries).length, 8);
+    end.writeUInt16LE(Object.keys(entries).length, 10);
+    end.writeUInt32LE(centralBuffer.length, 12);
+    end.writeUInt32LE(offset, 16);
+    return Buffer.concat([...local, centralBuffer, end]);
+  };
+  const workbook = zip({
+    'xl/worksheets/sheet1.xml': '<worksheet><sheetData><row><c r="A1" t="inlineStr"><is><t>款式名称</t></is></c><c r="B1" t="inlineStr"><is><t>轻商务德训鞋</t></is></c></row><row><c r="A2" t="inlineStr"><is><t>货号</t></is></c><c r="B2" t="inlineStr"><is><t>YS-2609-B01</t></is></c></row></sheetData></worksheet>'
+  });
   const input = prepareBomInput({
     filename: '鞋服小单快反_BOM设计单_测试.xlsx',
     contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    buffer: fs.readFileSync(filePath)
+    buffer: workbook
   });
 
   assert.match(input.text, /YS-2609-B01/);
