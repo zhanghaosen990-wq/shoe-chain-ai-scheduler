@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
     const page = await browser.newPage();
-    await page.goto('http://localhost:4173/workspace');
+    await page.goto((process.env.BASE_URL || 'http://localhost:4173') + '/workspace');
     await page.waitForFunction(() => !!window.bomLinkage);
     const result = { bom_data: { style_name: '水晶晚礼服', fabric_details: '雪纺', accessory_details: '水钻', material_info: '预估核价 800 元/件', production_hints: { quantity: 120 } } };
     await page.route('**/api/bom/parse', route => route.fulfill({ json: result }));

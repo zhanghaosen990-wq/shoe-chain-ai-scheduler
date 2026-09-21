@@ -4,10 +4,14 @@
 
 ## 第一次参与
 
+先在 GitHub 打开原仓库，点击 **Fork** 创建到朋友自己账号下的副本。朋友不需要原仓库写权限，也就不能直接改动原始 `main`。把 `<朋友用户名>` 替换为实际 GitHub 用户名：
+
 ```bash
-git clone https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git clone https://github.com/<朋友用户名>/shoe-chain-ai-scheduler.git
 cd shoe-chain-ai-scheduler
-git switch -c feature/你的功能名称
+git remote add upstream https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git fetch upstream
+git switch -c feature/你的功能名称 upstream/main
 ```
 
 完成修改后运行：
@@ -25,14 +29,65 @@ git commit -m "feat: 描述你的修改"
 git push -u origin feature/你的功能名称
 ```
 
-然后在 GitHub 创建 Pull Request，目标分支选择 `main`。合并前请让另一位协作者检查页面和测试结果。
+然后从朋友的 fork 在 GitHub 创建 Pull Request，目标选择 `zhanghaosen990-wq/shoe-chain-ai-scheduler` 的 `main`。合并前必须等待自动检查和仓库所有者审核。
+
+## 两人协作规则（必须遵守）
+
+### 朋友负责：在自己的分支修改并提交 PR
+
+朋友使用自己的 fork，只在 `feature/*` 分支工作，不申请原仓库写权限，也不自行合并 Pull Request：
+
+```bash
+git clone https://github.com/<朋友用户名>/shoe-chain-ai-scheduler.git
+cd shoe-chain-ai-scheduler
+git remote add upstream https://github.com/zhanghaosen990-wq/shoe-chain-ai-scheduler.git
+git fetch upstream
+git switch -c feature/friend-功能名称 upstream/main
+
+# 修改后先自测
+npm test
+npm run build
+
+git add .
+git commit -m "feat: 描述本次修改"
+git push -u origin feature/friend-功能名称
+```
+
+推送后从 fork 创建以原仓库 `main` 为目标的 Pull Request，填写改动内容和验证方式，等待所有者审核。不得修改或删除比赛说明 PDF、`data/demo_data.json` 等原始样本；确有需要时必须先在 PR 中说明并取得所有者同意。
+
+### 所有者负责：下载朋友的版本、测试、批准和合并
+
+所有者收到 Pull Request 后，先等待 GitHub Actions 的 `Check / test` 通过，再在本地取出该 PR 测试（把 `<PR编号>` 替换成页面上的数字）：
+
+```bash
+git fetch origin pull/<PR编号>/head:review/pr-<PR编号>
+git switch review/pr-<PR编号>
+npm ci
+npm test
+npm run build
+```
+
+随后在浏览器检查相关页面和核心流程。只有测试结果和页面检查都通过时，才由 `@zhanghaosen990-wq` 在 GitHub 批准并合并；不通过则在 PR 中留言，朋友继续向原 `feature/*` 分支提交修正。
+
+`baseline-2026-09-21` 标签保存本次原始版本。任何时候都可以用 `git switch --detach baseline-2026-09-21` 查看该基线，但不要在标签上开发。
+
+## 比赛演示协作分工
+
+比赛公网版运行在中国大陆云服务器的 Docker Compose 中。`main` 是服务器部署分支，任何前端或后端改动都必须先通过 Pull Request。
+
+- 前端同事使用 `feature/frontend-*` 分支，主要修改 `app/portal/`、`app/ui/` 和样式文件；不得擅自改变 API 字段、订单状态和权限规则。
+- 后端负责人使用 `feature/backend-*` 分支，主要修改 `app/server.js`、`app/portal-store.js`、Agent、数据和接口模块；改变接口时必须同步测试和说明。
+- 双方合并前运行 `npm test`、`npm run build`，并在浏览器检查相关页面。
+- 不提交 `.env`、`data/portal-state.json`、`app/portal/dist/`、`node_modules/` 或 `outputs/`。
+- 公网部署命令、服务器准备和比赛前检查见 [`docs/deployment-mainland-demo.md`](docs/deployment-mainland-demo.md)。
 
 ## 每次开始工作
 
+朋友每次从受保护的原仓库同步最新基线，再创建新分支：
+
 ```bash
-git switch main
-git pull --ff-only origin main
-git switch -c feature/新的功能名称
+git fetch upstream
+git switch -c feature/新的功能名称 upstream/main
 ```
 
 不要提交 `.env`、`data/portal-state.json`、`node_modules/`、`app/portal/dist/` 或 `outputs/`。`.env` 里可能有模型密钥。
@@ -42,8 +97,8 @@ git switch -c feature/新的功能名称
 如果 GitHub 提示分支落后：
 
 ```bash
-git fetch origin
-git rebase origin/main
+git fetch upstream
+git rebase upstream/main
 ```
 
 解决文件中的冲突标记后：

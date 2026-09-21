@@ -24,16 +24,16 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
   assert.ok((await page.getByRole('dialog').innerText()).includes('请先登录账号'));
   await page.getByLabel('关闭弹窗').click();
   assert.equal(await page.locator('select').count(),0);
-  await page.getByRole('button',{name:/我是品牌方/}).click();await page.getByRole('dialog').waitFor();
+  await page.getByRole('button',{name:/寻找制造伙伴/}).click();await page.getByRole('dialog').waitFor();
   await page.getByRole('dialog').getByLabel('账号 / 手机号').fill('brand_01');
   await page.getByRole('dialog').getByLabel('密码',{exact:true}).fill('wrong');
   await page.getByRole('dialog').getByRole('button',{name:'登录',exact:true}).click();
   await page.getByRole('alert').filter({hasText:'账号或密码不正确'}).waitFor();
   await page.getByRole('dialog').getByLabel('密码',{exact:true}).fill('123456');
   await page.getByRole('dialog').getByRole('button',{name:'登录',exact:true}).click();
-  await page.getByRole('heading',{name:'你好，迈斯特时尚服饰'}).waitFor();
-  await page.reload();await page.getByRole('heading',{name:'你好，迈斯特时尚服饰'}).waitFor();
-  await page.goto(base+'/factory');await page.getByRole('heading',{name:'你好，迈斯特时尚服饰'}).waitFor();assert.equal(new URL(page.url()).pathname,'/brand');
+  await page.locator('.brand-kicker').getByText('迈斯特时尚服饰',{exact:true}).waitFor();
+  await page.reload();await page.locator('.brand-kicker').getByText('迈斯特时尚服饰',{exact:true}).waitFor();
+  await page.goto(base+'/factory');await page.locator('.brand-kicker').getByText('迈斯特时尚服饰',{exact:true}).waitFor();assert.equal(new URL(page.url()).pathname,'/brand');
   await page.getByRole('button',{name:'填写履约反馈 / 评价工厂',exact:true}).click();
   await page.getByRole('radio',{name:/按时/}).check();await page.getByRole('radio',{name:/完美/}).check();await page.getByRole('radio',{name:'5 ★'}).check();await page.getByPlaceholder('分享交期、工艺细节与沟通体验').fill('登录后的评价同步测试');
   await page.getByRole('button',{name:'提交履约反馈',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
@@ -47,9 +47,9 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
   await page.getByRole('heading',{name:'迈斯特品牌总部',exact:true}).waitFor();await page.getByText('联系电话：13800138000').waitFor();
   await page.reload();await page.getByRole('heading',{name:'迈斯特品牌总部',exact:true}).waitFor();
   await logout();await page.goto(base+'/brand');await page.getByRole('dialog').waitFor();await page.getByLabel('关闭弹窗').click();
-  for(const [username,heading] of [['brand_02','你好，云端鞋履设计室'],['factory_01','瓯越精工鞋业有限公司'],['factory_02','楠江鞋业制造有限公司']]){
-   await login(username);await page.getByRole('heading',{name:heading,exact:true}).waitFor();
-   if(username==='factory_01')await page.getByText('登录后的评价同步测试').waitFor();
+  for(const [username,heading] of [['brand_02','云端鞋履设计室'],['factory_01','瓯越精工鞋业有限公司'],['factory_02','楠江鞋业制造有限公司']]){
+   await login(username);await (username.startsWith('brand')?page.locator('.brand-kicker').getByText(heading,{exact:true}):page.getByRole('heading',{name:heading,exact:true})).waitFor();
+   if(username==='factory_01'){await page.getByRole('button',{name:'订单与排期',exact:true}).click();await page.getByRole('button',{name:'履约评价',exact:true}).click();await page.getByText('登录后的评价同步测试').waitFor();await page.keyboard.press('Escape');}
    await logout();
   }
   await page.getByRole('button',{name:'注册账号',exact:true}).click();
@@ -61,17 +61,18 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
   await page.getByRole('dialog').getByLabel('账号 / 手机号').fill('new_factory');
   await page.getByRole('button',{name:'注册并登录',exact:true}).click();await page.getByRole('heading',{name:'新创制造',exact:true}).waitFor();
   assert.ok((await page.locator('.metrics').innerText()).includes('暂无履约数据'));
+  await page.getByRole('button',{name:'产能与工艺',exact:true}).click();
   await page.getByLabel('运动鞋',{exact:true}).check();
   await page.getByLabel('日均产能（件/双）',{exact:true}).fill('80');
-  await page.getByLabel('设备清单').fill('针车 × 10');await page.getByLabel('擅长工艺',{exact:false}).fill('精细缝制');
-  await page.getByRole('button',{name:'保存工厂资料',exact:true}).click();await page.getByRole('status').filter({hasText:'工厂资料已保存'}).waitFor();
+  await page.getByLabel('设备清单').fill('针车 × 10');await page.getByRole('searchbox',{name:'搜索或添加擅长工艺'}).fill('精细缝制');await page.getByRole('searchbox',{name:'搜索或添加擅长工艺'}).press('Enter');
+  await page.getByRole('button',{name:'保存产能与工艺',exact:true}).click();await page.getByRole('status').filter({hasText:'产能与工艺已保存'}).waitFor();
   await page.reload();await page.getByRole('heading',{name:'新创制造',exact:true}).waitFor();assert.equal(await page.getByLabel('日均产能（件/双）',{exact:true}).inputValue(),'80');
   await page.screenshot({path:'/tmp/shoe-auth-factory.png',fullPage:true});
   await logout();await login('new_factory');await page.getByRole('heading',{name:'新创制造',exact:true}).waitFor();
   for(const width of [390,768]){await page.setViewportSize({width,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
   await logout();await page.getByRole('button',{name:'注册账号',exact:true}).click();
-  await page.getByRole('dialog').getByLabel('品牌方',{exact:true}).check();await page.getByRole('dialog').getByLabel('账号 / 手机号').fill('new_brand');await page.getByRole('dialog').getByLabel('密码',{exact:true}).fill('123456');await page.getByRole('dialog').getByLabel('企业 / 主体名称').fill('新创品牌');await page.getByRole('button',{name:'注册并登录',exact:true}).click();await page.getByRole('heading',{name:'你好，新创品牌'}).waitFor();
-  assert.ok((await page.locator('.metrics').innerText()).includes('历史发单\n0'));
+  await page.getByRole('dialog').getByLabel('品牌方',{exact:true}).check();await page.getByRole('dialog').getByLabel('账号 / 手机号').fill('new_brand');await page.getByRole('dialog').getByLabel('密码',{exact:true}).fill('123456');await page.getByRole('dialog').getByLabel('企业 / 主体名称').fill('新创品牌');await page.getByRole('button',{name:'注册并登录',exact:true}).click();await page.locator('.brand-kicker').getByText('新创品牌',{exact:true}).waitFor();
+  assert.equal(await page.locator('.brand-secondary-metrics button').filter({hasText:'历史发单'}).locator('strong').textContent(),'0笔');
   assert.deepEqual(errors,[]);
   console.log('PASS: four seed logins, invalid credentials, register both roles, duplicate prevention, route guards, refresh/logout, profile persistence, review sync, new factory editing, mobile navigation.');
  }finally{if(browser)await browser.close();server.kill();fs.rmSync(dir,{recursive:true,force:true});}

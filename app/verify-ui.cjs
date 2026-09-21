@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
-    await page.goto('http://localhost:4173/workspace');
+    await page.goto((process.env.BASE_URL || 'http://localhost:4173') + '/workspace');
     await page.waitForFunction(() => !!window.presentation && !!document.querySelector('#factory-grid').children.length);
     await page.evaluate(() => {
       fillBomData({ style_name: '水晶渐变晚礼服', sku_code: 'DR-2026-08', color_info: '黑色 / BK01', size_range: 'S–XL', fabric_details: '85%氨纶15%锦纶 / 单耗 1.2 米/件\n水晶渐变织网', accessory_details: '水钻珠串多层项链；方糖黑色钻；方糖暗红钻', craftsmanship: '上衣竖向水钻高温固定；雪纺褶皱定型；整套礼服缝制', material_info: '订单模式 CMT；预估核价 800 元/件' });

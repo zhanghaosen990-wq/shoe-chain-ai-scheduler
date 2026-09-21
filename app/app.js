@@ -17,18 +17,24 @@ const { selectBomFile, beginBomRecognition, finishBomRecognition, failBomRecogni
 const $ = (selector) => document.querySelector(selector);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-Promise.all([fetch('/data/demo_data.json').then((response) => response.json()), fetch('/api/status').then((response) => response.json())])
+function loadWorkspace(){
+$('#factory-grid').setAttribute('aria-busy','true');
+return Promise.all([fetch('/data/demo_data.json').then((response) => response.json()), fetch('/api/status').then((response) => response.json())])
   .then(([loaded, status]) => {
     data = loaded;
     aiConfigured = status.configured;
     apiPaths = { ...apiPaths, ...(status.endpoints || {}) };
     renderFactories();
-    $('#data-note').textContent = aiConfigured ? `真实 Agent 已连接 · ${status.provider} / ${status.model} · 工厂数据为模拟数据` : '关键词推荐可用，也可手动选厂提交需求。';
+    $('#service-status').textContent=aiConfigured?'智能推荐已启用':'关键词推荐可用';
+    $('#data-note').textContent = aiConfigured ? '智能推荐已启用 · 请核对需求，工厂资料以登记信息为准。' : '关键词推荐可用，也可手动选厂提交需求。';
   })
-  .catch(() => showToast('服务或演示数据加载失败，请检查是否已启动原型。'));
+  .catch(() => {$('#service-status').textContent='连接需要检查';$('#factory-grid').setAttribute('aria-busy','false');$('#factory-grid').innerHTML='<div class="card result-empty"><h3>暂时无法加载工厂资料</h3><p>请检查连接后重试。</p><button type="button" id="retry-workspace">重新加载</button></div>';$('#retry-workspace').onclick=loadWorkspace;showToast('服务或演示数据加载失败，请检查连接',{type:'error'});});
+}
+loadWorkspace();
 
 function capacityInDeadline(factory, deadline) { return factory.available_capacity_by_day.slice(0, deadline).reduce((total, day) => total + day, 0); }
 function renderFactories() {
+  $('#factory-grid').setAttribute('aria-busy','false');
   $('#factory-grid').innerHTML = data.factories.map((factory) => {
     const materialWarning = Object.values(factory.material_status).some((value) => value.includes('缺料'));
     return `<article class="card factory"><header><h3>${escapeHtml(factory.name)}</h3><span>${escapeHtml(factory.cooperation_status)}</span></header><div class="tags">${factory.categories.map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join('')}</div><dl class="factory-dl"><div><dt>10 天可用产能</dt><dd>${capacityInDeadline(factory, 10)} 双</dd></div><div><dt>历史准时率</dt><dd>${Math.round(factory.on_time_rate * 100)}%</dd></div><div><dt>最小起订量</dt><dd>${factory.min_order_quantity} 双</dd></div><div><dt>关键物料</dt><dd class="${materialWarning ? 'material-warning' : 'material-ok'}">${materialWarning ? '需关注' : '本单待核对'}</dd></div></dl></article>`;
@@ -85,7 +91,7 @@ function renderSamplePreview() {
     return `<figure class="preview-item"><img src="${image.dataUrl}" alt="样品图 ${index + 1}" /><button type="button" class="remove-preview" data-index="${index}" aria-label="删除第 ${index + 1} 张图片">×</button><figcaption>${escapeHtml(image.name)}<span class="preview-status ${statusClass}">${statusText}</span></figcaption></figure>`;
   }).join('');
   $('#sample-preview').querySelectorAll('.remove-preview').forEach((button) => {
-    button.onclick = () => { invalidateProposal(); sampleImages.splice(Number(button.dataset.index), 1); renderSamplePreview(); };
+    button.onclick = () => { invalidateProposal(); sampleImages.splice(Number(button.dataset.index), 1); renderSamplePreview(); showToast('样品图片已移除'); };
   });
 }
 
@@ -97,7 +103,7 @@ function handleSampleFiles(files) {
     reader.onload = () => {
       const sample = { name: file.name, dataUrl: reader.result, url: reader.result, status: 'uploaded' };
       sampleImages.push(sample); invalidateProposal(); renderSamplePreview();
-      showToast('样品图片已载入，将以 base64 随提交数据发送。');
+      showToast('样品图片已添加，提交需求时将一并保存。');
     };
     reader.readAsDataURL(file);
   });
@@ -144,6 +150,7 @@ function syncProductionFromBom() {
   lastInferred = inferred;
 }
 function clearBomSelection() {
+  window.workspaceUI?.clearDemo();
   invalidateProposal();
   bomRevision += 1;
   bomRequestController?.abort();
@@ -161,6 +168,7 @@ function clearBomSelection() {
   $('#bom-source-hint').textContent = '尚未上传 BOM，以上字段也可以直接人工填写。';
   renderBomTags();
   renderBomFileState();
+  window.workspaceUI?.update();
 }
 function renderBomTags() {
   for (const field of ['accessory_details', 'craftsmanship']) {
@@ -172,6 +180,7 @@ function renderBomTags() {
   }
 }
 function renderBomRecognitionState() {
+  window.workspaceUI?.update();
   const loading = $('#bom-loading');
   const button = $('#start-bom-recognition');
   const ui = getBomRecognitionUiState(bomInteraction);
@@ -185,9 +194,9 @@ function renderBomRecognitionState() {
 function renderBomFileState() {
   $('#bom-file-state').hidden = !bomFile;
   if (!bomFile) { $('#bom-file-state').replaceChildren(); renderBomRecognitionState(); return; }
-  const hint = bomInteraction.status === 'success' ? '识别完成 · 结果可编辑' : bomInteraction.status === 'recognizing' ? '正在智能解析…' : bomInteraction.status === 'error' ? '识别失败 · 可重新点击' : '已选中 · 点击“开始识别 BOM”';
+  const hint = bomInteraction.status === 'demo' ? '演示数据 · 预置结果' : bomInteraction.status === 'success' ? '识别完成 · 结果可编辑' : bomInteraction.status === 'recognizing' ? '正在智能解析…' : bomInteraction.status === 'error' ? '识别失败 · 可重新点击' : '已选中 · 点击“开始识别 BOM”';
   $('#bom-file-state').innerHTML = `<span class="file-state-icon">✓</span><div><strong>${escapeHtml(bomFile.name)}</strong><small>${fileSize(bomFile.size)} · ${hint}</small></div><button type="button" id="remove-bom-file" aria-label="移除 BOM 文件">移除</button>`;
-  $('#remove-bom-file').onclick = clearBomSelection;
+  $('#remove-bom-file').onclick = ()=>{clearBomSelection();showToast('BOM 文件已移除');};
   renderBomRecognitionState();
 }
 async function requestBomParse(file, signal) {
@@ -229,6 +238,7 @@ async function recognizeBom() {
   try {
     const bomData = await requestBomParse(started.selectedFile, bomRequestController.signal);
     if (revision !== bomRevision) return;
+    window.workspaceUI?.clearDemo();
     fillBomData(bomData);
     bomInteraction = finishBomRecognition(bomInteraction);
     $('#bom-source-hint').textContent = `已从 ${started.selectedFile.name} 提取 8 项结构化信息，请核对后提交。`;
@@ -237,7 +247,7 @@ async function recognizeBom() {
     if (revision !== bomRevision || error.name === 'AbortError') return;
     bomInteraction = failBomRecognition(bomInteraction, error.message || 'BOM 识别失败，请重新上传或手动填写。');
     $('#bom-source-hint').textContent = 'BOM 识别失败，请重新点击识别或手动填写下方字段。';
-    showToast(bomInteraction.error);
+    showToast(bomInteraction.error,{type:'error'});
   } finally { if (revision === bomRevision) { bomRequestController = null; renderBomFileState(); renderBomRecognitionState(); } }
 }
 
@@ -256,7 +266,7 @@ async function generateInquiryMessages(plan, order) {
     $('#result-card').append(section);
     section.querySelectorAll('.copy-message').forEach((copyButton) => { copyButton.onclick = async () => { const text = messages[Number(copyButton.dataset.index)]?.content; try { await navigator.clipboard.writeText(text); showToast('询单消息已复制，可粘贴发送。'); } catch { showToast('复制失败，请手动选择消息内容。'); } }; });
     showToast(`已生成 ${messages.length} 条询单消息。`);
-  } catch (error) { showToast(error.message); }
+  } catch (error) { showToast(error.message,{type:'error'}); }
   finally { button.disabled = false; button.textContent = '生成询单消息'; }
 }
 
@@ -264,11 +274,12 @@ bindDropzone($('#sample-dropzone'), $('#sample-images-input'), handleSampleFiles
 bindDropzone($('#bom-dropzone'), $('#bom-file-input'), selectBomFiles);
 $('#start-bom-recognition').addEventListener('click', recognizeBom);
 renderBomRecognitionState();
-document.querySelectorAll('[data-bom-field]').forEach(input => input.addEventListener('input', () => { renderBomTags(); syncProductionFromBom(); }));
+document.querySelectorAll('[data-bom-field]').forEach(input => input.addEventListener('input', () => { if(bomInteraction.isRecognizing){bomRevision++;bomRequestController?.abort();bomInteraction={...bomInteraction,isRecognizing:false,status:'ready'};$('#bom-source-hint').textContent='已保留您的手动修改，需要时可重新识别。';renderBomFileState();}renderBomTags(); syncProductionFromBom(); }));
 renderBomTags();
 
 $('#order-form').addEventListener('submit', async (event) => {
   event.preventDefault();
+  if ($('#run-agent').disabled) return;
   if (!data) return showToast('正在加载演示数据，请稍候。');
   const bomData = readBomData();
   const planningContext = { category: $('#category').value, quantity: Number($('#quantity').value), deadlineDays: Number($('#deadline').value), splittable: $('#splittable').checked };
@@ -280,7 +291,8 @@ $('#order-form').addEventListener('submit', async (event) => {
   const order = toAgentOrder(payload);
   const revision = demandRevision, requestId = crypto.randomUUID();
   currentProposal = { requestId, demand: payload, candidates: [] };
-  resetSteps(); $('#result-card').className = 'card result-card empty'; $('#result-card').innerHTML = '<div class="result-empty"><span>◌</span><h2>真实 Agent 正在调用业务工具</h2><p>读取最新工厂能力，推荐后由你选厂和分配数量。</p></div>'; $('#run-state').className = 'pill running'; $('#run-state').textContent = '执行中'; $('#run-agent').disabled = true; $('#run-agent').querySelector('span').textContent = '…';
+  window.workspaceUI?.setExecution('running');
+  resetSteps(); $('#result-card').className = 'card result-card empty'; $('#result-card').innerHTML = '<div class="result-empty"><span>◌</span><h2>真实 Agent 正在调用业务工具</h2><p>读取最新工厂能力，推荐后由你选厂和分配数量。</p></div><div class="skeleton-block" aria-hidden="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>'; $('#run-state').className = 'pill running'; $('#run-state').textContent = '执行中'; $('#run-agent').disabled = true; $('#run-agent').querySelector('span').textContent = '…';
   try {
     const response = await fetch('/api/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const aiResult = await response.json(); if (!response.ok) throw new Error(aiResult.error || '真实 Agent 暂时无法响应。');
@@ -295,13 +307,20 @@ $('#order-form').addEventListener('submit', async (event) => {
     await executeStep(4, logs.find((item) => item.tool === 'evaluate_dispatch_plan')?.summary || '已完成');
     if (revision !== demandRevision) { showChangedDemand(); return; }
     const plan = aiResult.plan?.allocations?.map((item) => ({ factory: data.factories.find((factory) => factory.id === item.factory_id), quantity: item.quantity })).filter((item) => item.factory);
-    renderResult(plan, aiResult.answer || 'Agent 已完成分析。', { ...order, bom_data: bomData }, aiResult.dashboard); $('#run-state').className = 'pill done'; $('#run-state').textContent = '执行完成';
-  } catch (error) { if (revision !== demandRevision) { showChangedDemand(); return; } setFailure(error.message); appendSelectionAction(); $('#run-state').className = 'pill'; $('#run-state').textContent = '可手动选厂'; showToast('分析暂不可用，仍可选择工厂提交需求。'); }
+    renderResult(plan, aiResult.answer || 'Agent 已完成分析。', { ...order, bom_data: bomData }, aiResult.dashboard); $('#run-state').className = 'pill done'; $('#run-state').textContent = '执行完成';window.workspaceUI?.setExecution('success');showToast('工厂推荐分析已完成，请核对方案并选择工厂');
+  } catch (error) { if (revision !== demandRevision) { showChangedDemand(); return; } setFailure(error.message); window.workspaceUI?.setExecution('error');appendSelectionAction(); $('#run-state').className = 'pill'; $('#run-state').textContent = '可手动选厂'; showToast('分析暂不可用，仍可选择工厂提交需求。'); }
   finally { $('#run-agent').disabled = false; $('#run-agent').querySelector('span').textContent = '→'; }
 });
-function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2600); }
+let localNotifications;
+function showToast(message,options={}) {
+  const embedded=window.parent!==window&&new URLSearchParams(location.search).get('embedded')==='1';
+  const kind=options.type||(/失败|无法|不支持|仅支持|超过/.test(message)?'error':'success');
+  if(embedded)window.parent.postMessage({type:'shoe-ui:toast',message:String(message).slice(0,2000),kind},location.origin);
+  else {localNotifications??=ShoeUI.mountNotifications();localNotifications.notify(message,{...options,type:kind});}
+}
 
 function invalidateProposal() {
+  window.workspaceUI?.reset();
   demandRevision++; currentProposal = null;
   const button = $('#select-factories'); if (button) { button.disabled = true; button.textContent = '需求已修改，请重新分析'; }
 }
@@ -309,5 +328,6 @@ function showChangedDemand() { currentProposal = null; $('#result-card').innerHT
 $('#order-form').addEventListener('input', invalidateProposal);
 window.addEventListener('message', event => {
   if (event.origin !== location.origin || event.source !== window.parent || event.data?.type !== 'brand-order-submitted' || event.data.requestId !== currentProposal?.requestId) return;
+  window.workspaceUI?.setExecution('submitted');
   currentProposal.submitted = true; const button = $('#select-factories'); if (button) { button.disabled = true; button.textContent = '本次需求已提交'; }
 });

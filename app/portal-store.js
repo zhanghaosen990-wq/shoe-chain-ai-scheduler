@@ -50,11 +50,17 @@ function createStore(filename) {
   function updateFactory(actorId, input) {
     requireRole(actorId, 'factory');
     const previous = state.factories.find(f => f.id === actorId);
+    if (input.section !== undefined && !['capacity','showcase'].includes(input.section)) throw new Error('工厂资料分组无效。');
+    const capacity = input.section !== 'showcase', showcase = input.section !== 'capacity';
     const positive = n => (typeof n === 'number' || (typeof n === 'string' && /^\d+$/.test(n))) && Number.isSafeInteger(Number(n)) && Number(n) > 0 && Number(n) <= 1000000;
     const list = v => Array.isArray(v) && v.length > 0 && v.length <= 30 && v.every(x => typeof x === 'string' && x.trim() && x.length <= 160);
-    if (!positive(input.min_order_quantity) || !positive(input.dailyCapacity) || !list(input.categories) || !list(input.equipment) || !list(input.process_capabilities)) throw new Error('请填写有效的品类、设备、工艺、MOQ 与日均产能。');
-    if (!Array.isArray(input.images) || input.images.length > 6 || input.images.some(x => typeof x !== 'string' || !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(x) || x.length > 3000000)) throw new Error('最多上传 6 张 JPG/PNG，每张不超过 2MB。');
-    const updated = { ...previous, categories: [...new Set(input.categories)], equipment: input.equipment, process_capabilities: input.process_capabilities, min_order_quantity: Number(input.min_order_quantity), dailyCapacity: Number(input.dailyCapacity), description: String(input.description || '').slice(0, 600), images: input.images };
+    if (capacity && (!positive(input.min_order_quantity) || !positive(input.dailyCapacity) || !list(input.categories) || !list(input.equipment) || !list(input.process_capabilities))) throw new Error('请填写有效的品类、设备、工艺、MOQ 与日均产能。');
+    if (showcase && (!Array.isArray(input.images) || input.images.length > 6 || input.images.some(x => typeof x !== 'string' || !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(x) || x.length > 3000000))) throw new Error('最多上传 6 张 JPG/PNG，每张不超过 2MB。');
+    if (input.section === 'showcase' && (typeof input.description !== 'string' || input.description.length > 600)) throw new Error('工厂介绍最多 600 字。');
+    const updated = { ...previous,
+      ...(capacity ? {categories:[...new Set(input.categories)],equipment:input.equipment,process_capabilities:input.process_capabilities,min_order_quantity:Number(input.min_order_quantity),dailyCapacity:Number(input.dailyCapacity)} : {}),
+      ...(showcase ? {description:String(input.description || '').slice(0,600),images:input.images} : {})
+    };
     save({ ...state, factories: state.factories.map(f => f.id === actorId ? updated : f) });
     return snapshot();
   }
