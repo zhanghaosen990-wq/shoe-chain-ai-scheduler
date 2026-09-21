@@ -41,7 +41,7 @@ npm start
 
 在企业名称菜单或自己的主页选择“编辑企业资料”，可修改企业名称、联系人、电话、主营品类及优势说明，保存后导航和主页同步更新。工厂产能表单与企业资料共用品类和优势说明。
 
-账号与 Profile 使用 localStorage 的 shoe-users-v1，登录用户 ID 使用 shoe-session-v1；旧 shoe-account 不再用于身份。密码保存为随机盐加 SHA-256 摘要，不以明文保存。公开企业资料同步本地业务 API，不上传密码摘要。
+账号与 Profile 使用 localStorage 的 shoe-users-v1，登录用户 ID 使用 shoe-session-v1；旧 shoe-account 不再用于身份。密码保存为随机盐加 SHA-256 摘要，不以明文保存；公网 IP 的普通 HTTP 环境缺少 Web Crypto `subtle` / `randomUUID` 时，使用 `getRandomValues` 和项目内置 SHA-256 兼容实现。公开企业资料同步本地业务 API，不上传密码摘要。
 
 这是按需求实现的浏览器本地账号与前端路由保护，账号不能跨设备自动同步，也不提供服务端认证安全边界；后端 Profile 同步接口信任本地账号身份。正式部署需替换为服务端账户、密码哈希和会话认证。
 

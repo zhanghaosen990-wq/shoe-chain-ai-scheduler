@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {useDraftState,useFormTask} from './ui';
+import {randomId} from '../ui/runtime';
 const labels={style_name:'款式名称',sku_code:'货号',color_info:'颜色',size_range:'尺码',fabric_details:'面料',accessory_details:'辅料',craftsmanship:'制作工艺',material_info:'物料说明'};
 export function DemandDetails({demand,quantity}){
  if(!demand)return <p className="muted">历史订单未提供详细需求。</p>;
@@ -12,7 +13,7 @@ export function AllocationModal({proposal,data,onSubmit,onClose,Modal,accountId}
  const key=actor+':allocation:'+(proposal.reassignOrderId||proposal.requestId||'current');
  const demand=proposal.demand,total=proposal.quantity??demand.planning_context.quantity;
  const [selected,setSelected]=useDraftState(key+':selected',()=>proposal.candidates?.length?{[proposal.candidates[0].factory_id]:total}:{});
- const [requestId]=useDraftState(key+':requestId',()=>proposal.requestId || (proposal.reassignOrderId ? 'reassign-'+proposal.reassignOrderId : crypto.randomUUID()));
+ const [requestId]=useDraftState(key+':requestId',()=>proposal.requestId || (proposal.reassignOrderId ? 'reassign-'+proposal.reassignOrderId : randomId()));
  const [confirm,setConfirm]=useDraftState(key+':confirm',false),[ack,setAck]=useDraftState(key+':ack',false),[showAll,setShowAll]=useDraftState(key+':showAll',!proposal.candidates?.length);
  const {busy,error,run}=useFormTask(key,onClose,{kind:'allocation',accountId:actor,proposal:{...proposal,requestId}});
  const candidates=proposal.candidates||[],candidateIds=candidates.map(c=>c.factory_id);

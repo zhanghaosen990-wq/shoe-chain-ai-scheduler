@@ -8,7 +8,7 @@ import {Status} from './workspace-status';
 import {FactoryWorkspace} from './factory-workspace';
 import './factory-workspace.css';
 import {Modal, Empty, Skeleton, ParticleCanvas, notify} from './ui';
-import {validBridgeMessage} from '../ui/runtime';
+import {validBridgeMessage,randomId} from '../ui/runtime';
 import { FeedbackForm } from './feedback-form';
 import { calculateFeedback, isCompleteFeedback, isSeedReview, DELIVERY, QUALITY } from '../feedback';
 import { OrderAlerts } from './order-alert';
@@ -48,7 +48,7 @@ function App() {
   const [recovery,setRecovery]=useState(null);
   useEffect(()=>{
     const escape=e=>{if(e.key==='Escape'&&!document.querySelector('dialog[open]'))document.querySelectorAll('.user-menu[open]').forEach(el=>el.removeAttribute('open'));};
-    const restore=e=>{if(e.detail?.accountId&&e.detail.accountId!==accountRef.current?.id)return;setAuthMode(null);setEditing(false);setRecovery({...e.detail,instance:crypto.randomUUID()});};
+    const restore=e=>{if(e.detail?.accountId&&e.detail.accountId!==accountRef.current?.id)return;setAuthMode(null);setEditing(false);setRecovery({...e.detail,instance:randomId()});};
     document.addEventListener('keydown',escape);window.addEventListener('shoe-ui:restore',restore);
     return()=>{document.removeEventListener('keydown',escape);window.removeEventListener('shoe-ui:restore',restore);};
   },[]);

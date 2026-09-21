@@ -289,7 +289,7 @@ $('#order-form').addEventListener('submit', async (event) => {
   if (sampleImages.some((image) => image.status === 'error')) return showToast('有样品图片上传失败，请删除后重新上传。');
   const payload = buildSubmitPayload({ sampleImages: sampleImages.filter((image) => image.status === 'uploaded').map((image) => image.url), bomData, productionRequirements: { cooperation_mode: $('#cooperation-mode').value, special_notes: $('#special-notes').value }, planningContext });
   const order = toAgentOrder(payload);
-  const revision = demandRevision, requestId = crypto.randomUUID();
+  const revision = demandRevision, requestId = window.ShoeUI.randomId();
   currentProposal = { requestId, demand: payload, candidates: [] };
   window.workspaceUI?.setExecution('running');
   resetSteps(); $('#result-card').className = 'card result-card empty'; $('#result-card').innerHTML = '<div class="result-empty"><span>◌</span><h2>真实 Agent 正在调用业务工具</h2><p>读取最新工厂能力，推荐后由你选厂和分配数量。</p></div><div class="skeleton-block" aria-hidden="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>'; $('#run-state').className = 'pill running'; $('#run-state').textContent = '执行中'; $('#run-agent').disabled = true; $('#run-agent').querySelector('span').textContent = '…';
