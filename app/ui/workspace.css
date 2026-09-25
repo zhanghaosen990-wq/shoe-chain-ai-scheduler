@@ -1,10 +1,10 @@
-/* Workspace-specific layout on top of the shared design tokens. */
+/* Overrides the base workspace stylesheet (app/styles.css) using shared tokens. */
 .shell{max-width:1240px;padding:0 24px 48px}
 .hero{max-width:none;margin:28px 0;padding:42px 36px;border-radius:20px}
 .hero h1{font-size:36px;line-height:1.35;max-width:760px;color:var(--ink)}
 .hero .eyebrow{color:var(--muted);font-size:12px;margin-bottom:18px}
 .hero p:last-child{color:var(--muted);font-size:14px;max-width:780px}
-.card{box-shadow:var(--shadow);background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;}
+.card{box-shadow:var(--shadow);background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:var(--radius);}
 .intake-form{gap:24px}
 .intake-card,.bom-card,.requirement-card{padding:28px}
 .upload-panel{border-radius:14px;padding:20px;background:var(--surface-raised);}
@@ -26,7 +26,7 @@
 .bom-detail{background:var(--surface);border-color:var(--line);padding:18px}
 .bom-file-state strong,.bom-file-state small{font-size:12px}
 .bom-file-state button{font-size:12px}
-.metric-card{padding:22px;box-shadow:var(--shadow);border-color:var(--line);background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;}
+.metric-card{padding:22px;box-shadow:var(--shadow);border-color:var(--line);background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:var(--radius);}
 .metric-card>strong{font-size:32px;color:var(--accent);font-weight:550;font-variant-numeric:tabular-nums}
 .metric-card>small{font-size:12px}
 .submit-row button{border-radius:10px;background:var(--accent);color:var(--on-accent);border-color:var(--accent-line);box-shadow:var(--accent-shadow);}
@@ -46,7 +46,7 @@
 .result-empty>span{color:var(--muted)}
 .result-empty p{font-size:14px}
 /* Semantic list, visually a single connected progress bar at every width. */
-.workflow-stepper{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;padding:18px 12px;margin:0 0 24px;box-shadow:var(--shadow)}
+.workflow-stepper{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:var(--radius);padding:18px 12px;margin:0 0 24px;box-shadow:var(--shadow)}
 .workflow-stepper ol{display:flex;justify-content:space-between;gap:0;list-style:none;margin:0;padding:0;border:0}
 .workflow-stepper li{flex:1;min-width:0;list-style:none;margin:0;padding:0;border:0;position:relative}
 .workflow-stepper li::marker{content:''}
