@@ -67,7 +67,7 @@ const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
   await page.getByLabel('设备清单').fill('针车 × 10');await page.getByRole('searchbox',{name:'搜索或添加擅长工艺'}).fill('精细缝制');await page.getByRole('searchbox',{name:'搜索或添加擅长工艺'}).press('Enter');
   await page.getByRole('button',{name:'保存产能与工艺',exact:true}).click();await page.getByRole('status').filter({hasText:'产能与工艺已保存'}).waitFor();
   await page.reload();await page.getByRole('heading',{name:'新创制造',exact:true}).waitFor();assert.equal(await page.getByLabel('日均产能（件/双）',{exact:true}).inputValue(),'80');
-  await page.screenshot({path:'/tmp/shoe-auth-factory.png',fullPage:true});
+  await page.screenshot({path:path.join(dir,'shoe-auth-factory.png'),fullPage:true});
   await logout();await login('new_factory');await page.getByRole('heading',{name:'新创制造',exact:true}).waitFor();
   for(const width of [390,768]){await page.setViewportSize({width,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
   await logout();await page.getByRole('button',{name:'注册账号',exact:true}).click();

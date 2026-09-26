@@ -7,7 +7,7 @@ export function DemandDetails({demand,quantity}){
  const p=demand.planning_context||{},r=demand.production_requirements||{};
  return <><dl className="demand-details"><div><dt>品类 / 分配数量</dt><dd>{p.category||'未提供'} · {quantity} 件/双</dd></div><div><dt>总需求 / 目标交期</dt><dd>{p.quantity} 件/双 · {p.deadline_days} 天</dd></div><div><dt>合作方式</dt><dd>{r.cooperation_mode||'未提供'}</dd></div>{Object.entries(labels).map(([key,label])=><div key={key}><dt>{label}</dt><dd>{demand.bom_data?.[key]||'未提供'}</dd></div>)}<div><dt>备注</dt><dd>{r.special_notes||'未提供'}</dd></div></dl><div className="photo-grid">{(demand.sample_images||[]).map((src,i)=><a key={i} href={src} target="_blank" rel="noreferrer"><img src={src} alt={`需求样品 ${i+1}`}/></a>)}</div></>;
 }
-function capacity(f,days){return Math.max(0,(f.dailyCapacity||0)*Math.min(days||10,10)-(f.analytics?.booked||0));}
+function capacity(f={},days){return Math.max(0,(f.dailyCapacity||0)*Math.min(days||10,10)-(f.analytics?.booked||0));}
 export function AllocationModal({proposal,data,onSubmit,onClose,Modal,accountId}){
  const actor=accountId||localStorage.getItem('shoe-session-v1');
  const key=actor+':allocation:'+(proposal.reassignOrderId||proposal.requestId||'current');
@@ -29,8 +29,22 @@ export function OrderDetailsModal({order,data,account,mutate,notify,onClose,Moda
  const [action,setAction]=useDraftState(key+':action',''),[reason,setReason]=useDraftState(key+':reason',''),[ack,setAck]=useDraftState(key+':ack',false);
  const {busy,error,run,setError}=useFormTask(key,onClose,{kind:'order',accountId:account?.id,orderId:order.id});
  const factory=data.factories.find(f=>f.id===order.factoryId),p=order.demand?.planning_context;
- const available=capacity(factory,p?.deadline_days),risk=order.quantity<factory.min_order_quantity||order.quantity>available;
- const canAct=account?.id===order.factoryId&&order.status==='pending';
- function change(status){run(async()=>{await mutate('order-status',{orderId:order.id,status,reason,confirmRisks:ack});notify(status==='production'?'已接单，产能已更新':'已拒绝，品牌方可查看原因并重新分配');});}
- return <Modal title="订单需求详情" onClose={onClose}><form onSubmit={e=>{e.preventDefault();if(!busy&&canAct&&action&&(action==='accept'?ack:reason.trim()))change(action==='accept'?'production':'rejected');}}><p>{order.title} · {order.quantity} 件/双</p><p className="muted">品牌：{data.brands.find(b=>b.id===order.brandId)?.name} · 工厂：{factory.name}</p><DemandDetails demand={order.demand} quantity={order.quantity}/>{order.risks?.length>0&&<div className="order-risks"><h3>提交时的推荐风险</h3><ul>{order.risks.map((r,i)=><li key={i}>{r}</li>)}</ul></div>}{order.rejectionReason&&<p className="form-error">拒绝原因：{order.rejectionReason}</p>}{order.reassignedBy&&<p className="muted">该部分数量已重新分配，原拒绝记录保留。</p>}{canAct&&<><p>当前最小起订量 {factory.min_order_quantity} · 交期内已知可用产能 {available}</p>{action==='accept'&&<label className="risk-ack"><input disabled={busy} type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>{risk?'已知存在 MOQ / 产能风险，我确认可协调资源承接此单。':'我已核对需求、报价及排期，确认承接此单。'}</label>}{action==='reject'&&<label className="field">拒绝原因<textarea disabled={busy} required maxLength={500} rows={3} value={reason} onChange={e=>setReason(e.target.value)} placeholder="请说明工艺、交期或其他无法承接的原因"/></label>}{error&&<p className="form-error" role="alert">{error}</p>}<div className="modal-actions">{!action?<><button type="button" className="secondary" onClick={()=>setAction('reject')}>拒绝接单</button><button type="button" className="primary" onClick={()=>setAction('accept')}>确认接单</button></>:<><button type="button" className="secondary" disabled={busy} onClick={()=>{setAction('');setError('');}}>返回</button><button type="button" className="primary" disabled={busy||(action==='accept'?!ack:!reason.trim())} onClick={()=>change(action==='accept'?'production':'rejected')}>{busy?'处理中…':action==='accept'?'确认承接并占用产能':'提交拒绝原因'}</button></>}</div></>}</form>{actions}</Modal>;
+ const available=capacity(factory,p?.deadline_days),risk=order.quantity<factory?.min_order_quantity||order.quantity>available;
+ const ownFactory=account?.role==='factory'&&account.id===order.factoryId;
+ const canAct=ownFactory&&order.status==='pending',canComplete=ownFactory&&order.status==='production';
+ const showContact=account?.role==='brand'&&account.id===order.brandId&&['production','completed'].includes(order.status);
+ function change(status){
+  if(busy||!(status==='completed'?canComplete:canAct))return;
+  run(async()=>{await mutate('order-status',{orderId:order.id,status,reason,confirmRisks:ack});notify(status==='completed'?'订单已完成，产能已更新':status==='production'?'已接单，产能已更新':'已拒绝，品牌方可查看原因并重新分配');});
+ }
+ return <Modal title="订单需求详情" onClose={onClose}><form onSubmit={e=>{e.preventDefault();if(!busy&&canAct&&action&&(action==='accept'?ack:reason.trim()))change(action==='accept'?'production':'rejected');}}>
+  <p>{order.title} · {order.quantity} 件/双</p><p className="muted">品牌：{data.brands.find(b=>b.id===order.brandId)?.name} · 工厂：{factory?.name||'工厂资料暂不可用'}</p>
+  {showContact&&<section aria-label="承接工厂联系方式"><h3>承接工厂联系方式</h3><dl className="demand-details"><div><dt>联系人</dt><dd>{factory?.contactName?.trim()||'联系人未提供'}</dd></div><div><dt>联系电话</dt><dd>{factory?.phone?.trim()||'联系电话未提供'}</dd></div></dl></section>}
+  <DemandDetails demand={order.demand} quantity={order.quantity}/>
+  {order.risks?.length>0&&<div className="order-risks"><h3>提交时的推荐风险</h3><ul>{order.risks.map((r,i)=><li key={i}>{r}</li>)}</ul></div>}
+  {order.rejectionReason&&<p className="form-error">拒绝原因：{order.rejectionReason}</p>}{order.reassignedBy&&<p className="muted">该部分数量已重新分配，原拒绝记录保留。</p>}
+  {error&&<p className="form-error" role="alert">{error}</p>}
+  {canAct&&<><p>当前最小起订量 {factory?.min_order_quantity??'未提供'} · 交期内已知可用产能 {available}</p>{action==='accept'&&<label className="risk-ack"><input disabled={busy} type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>{risk?'已知存在 MOQ / 产能风险，我确认可协调资源承接此单。':'我已核对需求、报价及排期，确认承接此单。'}</label>}{action==='reject'&&<label className="field">拒绝原因<textarea disabled={busy} required maxLength={500} rows={3} value={reason} onChange={e=>setReason(e.target.value)} placeholder="请说明工艺、交期或其他无法承接的原因"/></label>}<div className="modal-actions">{!action?<><button type="button" className="secondary" onClick={()=>setAction('reject')}>拒绝接单</button><button type="button" className="primary" onClick={()=>setAction('accept')}>确认接单</button></>:<><button type="button" className="secondary" disabled={busy} onClick={()=>{setAction('');setError('');}}>返回</button><button type="button" className="primary" disabled={busy||(action==='accept'?!ack:!reason.trim())} onClick={()=>change(action==='accept'?'production':'rejected')}>{busy?'处理中…':action==='accept'?'确认承接并占用产能':'提交拒绝原因'}</button></>}</div></>}
+  {canComplete&&<div className="modal-actions"><button type="button" className="primary" disabled={busy} onClick={()=>change('completed')}>{busy?'处理中…':'已完成订单'}</button></div>}
+ </form>{actions}</Modal>;
 }

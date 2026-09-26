@@ -25,6 +25,46 @@ test('factory acceptance reserves capacity and brand completion releases it', t 
  assert.throws(() => store.transition('BRAND-B',order.id,'completed'));
  assert.equal(store.transition('BRAND-A',order.id,'completed').factories[0].analytics.available,600);
 });
+
+test('only the owning factory or brand can complete production; stale and illegal transitions do not write', t => {
+ const {store,file}=setup(t);
+ const created=store.createOrders('BRAND-A',submission()).orders.find(o=>o.requestId==='test-request'&&o.factoryId==='FAC-A');
+ const unchanged=()=>fs.readFileSync(file,'utf8');
+ let before=unchanged();
+ assert.throws(()=>store.transition('FAC-A',created.id,'completed'));
+ assert.equal(unchanged(),before);
+ store.transition('FAC-A',created.id,'production',{confirmRisks:true});
+ before=unchanged();
+ for(const actor of ['FAC-B','BRAND-B','unknown',undefined])assert.throws(()=>store.transition(actor,created.id,'completed'));
+ for(const status of ['pending','rejected','production','invalid'])assert.throws(()=>store.transition('FAC-A',created.id,status));
+ assert.equal(unchanged(),before);
+ const next=store.transition('FAC-A',created.id,'completed');
+ assert.equal(next.orders.find(o=>o.id===created.id).status,'completed');
+ assert.equal(next.factories.find(f=>f.id==='FAC-A').analytics.booked,0);
+ assert.equal(createStore(file).snapshot().orders.find(o=>o.id===created.id).status,'completed');
+ before=unchanged();
+ for(const actor of ['FAC-A','BRAND-A'])assert.throws(()=>store.transition(actor,created.id,'completed'));
+ for(const status of ['pending','production','rejected'])assert.throws(()=>store.transition('FAC-A',created.id,status));
+ assert.equal(unchanged(),before);
+ const rejected=store.snapshot().orders.find(o=>o.requestId==='test-request'&&o.factoryId==='FAC-B');
+ store.transition('FAC-B',rejected.id,'rejected',{reason:'排期已满'});
+ before=unchanged();assert.throws(()=>store.transition('FAC-B',rejected.id,'completed'));assert.equal(unchanged(),before);
+ store.transition('BRAND-A','DEMO-002','completed');
+ before=unchanged();assert.throws(()=>store.transition('FAC-B','DEMO-002','completed'));assert.equal(unchanged(),before);
+});
+
+test('automatic factory profile sync preserves server contacts; explicit edits can clear them',t=>{
+ const {store,file}=setup(t);
+ const profile={...store.snapshot().factories[0],contactName:'服务端联系人',phone:'13800138000'};
+ store.syncProfile(profile);
+ const {contactName,phone,...loginProfile}=profile;
+ const synced=store.syncProfile(loginProfile).factories[0];
+ assert.equal(synced.contactName,contactName);assert.equal(synced.phone,phone);
+ store.syncProfile({...loginProfile,phone:''});
+ const saved=createStore(file).snapshot().factories[0];
+ assert.equal(saved.phone,'');assert.equal(saved.contactName,contactName);
+ assert.equal(store.syncProfile({...loginProfile,contactName:''}).factories[0].contactName,'');
+});
 test('factory capabilities are isolated and survive restart', t => {
  const { store, file } = setup(t); const before = store.snapshot();
  const input = {...before.factories[0],dailyCapacity:123,min_order_quantity:50,categories:['女式晚礼服']};

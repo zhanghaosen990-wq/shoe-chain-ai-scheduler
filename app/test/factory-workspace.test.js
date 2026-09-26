@@ -24,3 +24,12 @@ test('notification target resolves to the correct page, missing targets are expl
  const many=Array.from({length:24},(_,i)=>({id:`O-${i}`}));
  assert.equal(orderPageFor(many,'O-21'),3);assert.equal(orderPageFor(many,'absent'),null);
 });
+
+test('a newly completed order stays in its factory all and completed views, leaving production',()=>{
+ const updated=orders.map(o=>o.id==='e'?{...o,status:'completed'}:o);
+ const own=factoryOrders(updated,'FAC-A');
+ assert.ok(filterFactoryOrders(own,[],{status:'all'}).some(o=>o.id==='e'));
+ assert.ok(filterFactoryOrders(own,[],{status:'completed'}).some(o=>o.id==='e'));
+ assert.equal(filterFactoryOrders(own,[],{status:'production'}).some(o=>o.id==='e'),false);
+ assert.equal(factoryOrders(updated,'FAC-B').some(o=>o.id==='e'),false);
+});

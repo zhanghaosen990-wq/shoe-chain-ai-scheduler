@@ -65,7 +65,12 @@ function App() {
     const data = await request('/api/portal');
     const previous = [...data.brands,...data.factories].find(p=>p.id===user.id);
     const profile = {...user, categories:user.profileReady?user.categories:(previous?.categories||user.categories), description:user.profileReady?user.description:(previous?.description||user.description)};
+    if(user.role==='factory'&&previous){delete profile.contactName;delete profile.phone;}
     const next = await request('/api/portal/profile',user.id,profile);
+    if(user.role==='factory'){
+      const saved=next.factories.find(f=>f.id===user.id);
+      profile.contactName=saved?.contactName??'';profile.phone=saved?.phone??'';
+    }
     auth.updateProfile(profile,user.id); if(auth.current()?.id===user.id){++refreshVersion.current;setData(next);setUser(auth.current());}
   }
   useEffect(() => {
@@ -111,20 +116,24 @@ function App() {
   }
   async function mutate(path,payload){
     const actor=accountRef.current;if(!actor)throw Error('请先登录账号');
-    const next=await request('/api/portal/'+path,actor.id,payload);
+    let next;
+    try {next=await request('/api/portal/'+path,actor.id,payload);}
+    catch(e){if(path==='order-status'&&accountRef.current?.id===actor.id)await refresh();throw e;}
     if(accountRef.current?.id===actor.id){++refreshVersion.current;setData(next);if(path==='factory'){const saved=next.factories.find(f=>f.id===actor.id);const updated=auth.updateProfile({...auth.current(),categories:saved.categories,description:saved.description});setUser(updated);}}
     const channel=new BroadcastChannel('shoe-portal');channel.postMessage('updated');channel.close();return next;
   }
   const profiles=ready?auth.profiles():[];
-  const data=rawData&&{...rawData,brands:rawData.brands.map(p=>({...p,...profiles.find(u=>u.id===p.id),...(!profiles.find(u=>u.id===p.id)?.profileReady?{categories:p.categories,description:p.description}:{})})),factories:rawData.factories.map(p=>{const u=profiles.find(u=>u.id===p.id);return u?{...p,...u,...(!u.profileReady?{categories:p.categories,description:p.description}:{})}:p;})};
-  const ctx={data,account,enter,refresh,mutate,notify,setData,saveProfile,editProfile:()=>setEditing(true)};
+  const data=rawData&&{...rawData,brands:rawData.brands.map(p=>({...p,...profiles.find(u=>u.id===p.id),...(!profiles.find(u=>u.id===p.id)?.profileReady?{categories:p.categories,description:p.description}:{})})),factories:rawData.factories.map(p=>{const u=profiles.find(u=>u.id===p.id);return u?{...p,...u,contactName:p.contactName??'',phone:p.phone??'',...(!u.profileReady?{categories:p.categories,description:p.description}:{})}:p;})};
+  const currentFactory=data?.factories.find(f=>f.id===account?.id);
+  const currentAccount=account?.role==='factory'&&currentFactory?{...account,contactName:currentFactory.contactName??'',phone:currentFactory.phone??''}:account;
+  const ctx={data,account:currentAccount,enter,refresh,mutate,notify,setData,saveProfile,editProfile:()=>setEditing(true)};
   return <Context.Provider value={ctx}><div className={location.pathname==='/'?'app-home':location.pathname==='/brand'?'app-workspace app-brand':location.pathname==='/factory'?'app-workspace app-factory':'app-workspace'}><header className="nav"><Link to="/" className="logo"><span>S</span>鞋链智排<small>协同制造平台</small></Link><nav><button onClick={()=>enter('brand')}>品牌方</button><button onClick={()=>enter('factory')}>工厂端</button>{account&&<Link to={`/profile/${account?.id}`}>我的主页</Link>}</nav><div className="auth-nav">{ready&&data&&account?.role==='factory'&&<OrderAlerts key={account.id} data={data} account={account} mutate={mutate} refresh={refresh} notify={notify} Modal={Modal}/ >}{account?<><details className="user-menu"><summary><span className="user-initial">{account.name[0]}</span><span className="company-name">{account.name}</span><span>⌄</span></summary><div><span>{account?.role==='brand'?'品牌方':'工厂端'} · {account.username}</span><Link to={`/profile/${account?.id}`}>我的主页</Link><button onClick={()=>setEditing(true)}>编辑企业资料</button></div></details><button className="text-button" onClick={logout}>退出登录</button></>:<><button className="secondary" disabled={!ready} onClick={()=>openAuth('login')}>登录</button><button className="primary" disabled={!ready} onClick={()=>openAuth('register')}>注册账号</button></>}</div></header>
     {error&&<div className="error-banner" role="alert">{error}<button onClick={refresh}>重试连接</button></div>}
     {!ready||!data?(error?<Empty action={<button className="secondary" onClick={refresh}>重新连接</button>}>暂时无法连接工作台，请稍后重试。</Empty>:<Skeleton/>):<main className="portal-shell"><Routes><Route path="/" element={<Landing/>}/><Route path="/brand" element={account?.role==='brand'?<Brand key={account?.id}/>:<Empty>请先登录品牌方账号</Empty>}/><Route path="/factory" element={account?.role==='factory'?<Factory key={account?.id}/>:<Empty>请先登录工厂账号</Empty>}/><Route path="/profile/:id" element={<Profile/>}/><Route path="*" element={<Empty>页面不存在，<Link to="/">返回首页</Link></Empty>}/></Routes></main>}
     <footer>鞋链智排 · 永嘉鞋服小单快反协作平台<span>连接品牌需求与制造能力，让每一次合作更有价值。</span></footer>
     {authMode&&<AuthForm key={authMode} mode={authMode} onMode={setAuthMode} onSubmit={authenticate} onClose={()=>setAuthMode(null)} Modal={Modal} notice={notice}/>}
     {recovery&&<Recovery key={recovery.instance} value={recovery} onClose={()=>setRecovery(null)} authenticate={authenticate}/> }
-    {editing&&account&&<ProfileForm account={account} onSave={saveProfile} onClose={()=>setEditing(false)} Modal={Modal}/>}
+    {editing&&account&&<ProfileForm account={currentAccount} onSave={saveProfile} onClose={()=>setEditing(false)} Modal={Modal}/>}
 
   </div></Context.Provider>;
 }

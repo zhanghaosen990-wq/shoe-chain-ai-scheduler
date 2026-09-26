@@ -43,6 +43,10 @@ function createStore(filename) {
     if (!Array.isArray(input.categories) || input.categories.length > 30 || input.categories.some(c => typeof c !== 'string' || !c.trim() || c.length > 40)) throw new Error('主营品类无效');
     const defaults = input.role === 'factory' ? { equipment: [], process_capabilities: [], images: [], dailyCapacity: 0, min_order_quantity: 50, delivered: 0, deliveryTotal: 0, qualityPassed: 0, qualityTotal: 0, location: '', material_status: {}, available_capacity_by_day: Array(10).fill(0), on_time_rate: 0, data_authorization: [] } : {city: ''};
     const profile = { ...defaults, ...previous, id: input.id, role: input.role, name: input.name.trim(), contactName: String(input.contactName || '').slice(0,40), phone: String(input.phone || '').slice(0,25), description: String(input.description || '').slice(0,600), categories: input.categories };
+    // Automatic login sync omits factory contacts; only explicit profile edits replace them.
+    if (input.role === 'factory') for (const key of ['contactName','phone']) {
+      if (!Object.hasOwn(input,key)) profile[key] = previous?.[key] ?? '';
+    }
     const key = input.role === 'factory' ? 'factories' : 'brands';
     save({ ...state, [key]: previous ? state[key].map(p => p.id === input.id ? profile : p) : [...state[key], profile] });
     return snapshot();
@@ -93,7 +97,10 @@ function createStore(filename) {
   }
   function transition(actorId, orderId, status, options={}) {
     const order=state.orders.find(o=>o.id===orderId);
-    const valid=order&&((actorId===order.factoryId&&order.status==='pending'&&['production','rejected'].includes(status))||(actorId===order.brandId&&order.status==='production'&&status==='completed'));
+    const role=account(actorId)?.role;
+    const ownFactory=role==='factory'&&actorId===order?.factoryId;
+    const ownBrand=role==='brand'&&actorId===order?.brandId;
+    const valid=order&&((ownFactory&&order.status==='pending'&&['production','rejected'].includes(status))||((ownFactory||ownBrand)&&order.status==='production'&&status==='completed'));
     if(!valid)throw Error('当前账号不能执行此订单状态变更。');
     if(status==='rejected'&&(typeof options.reason!=='string'||!options.reason.trim()||options.reason.length>500))throw Error('请填写 1–500 字拒绝原因');
     if(status==='production'&&order.demand){
