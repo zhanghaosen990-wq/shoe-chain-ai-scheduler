@@ -125,6 +125,13 @@ textarea{resize:vertical;line-height:1.75}
 .photo-heading p{font-size:12px}
 .upload-label{position:relative;cursor:pointer}
 .upload-label input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+/* :disabled includes controls inherited from a disabled fieldset. */
+input:disabled,select:disabled,textarea:disabled{opacity:.52;cursor:not-allowed}
+input:disabled::file-selector-button{cursor:not-allowed}
+.category-options input:disabled,.rating-picker input:disabled,.upload-label input:disabled{opacity:0}
+.category-options label:has(input:disabled),.rating-picker label:has(input:disabled),.upload-label:has(input:disabled){opacity:.52;cursor:not-allowed}
+.upload-label:has(input:disabled){box-shadow:none;transform:none}
+.secondary.upload-label:has(input:disabled){background:var(--surface);border-color:var(--line)}
 .photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .photo-grid figure{position:relative;margin:0}
 .photo-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;background:var(--surface-raised)}
@@ -226,6 +233,7 @@ tr[id^="factory-order-"]:focus{outline:2px solid var(--accent-line);outline-offs
 .feedback-option{display:flex;gap:10px;align-items:center;padding:10px 4px;cursor:pointer;font-size:14px}
 .feedback-option input{width:auto}
 .feedback-option small{margin-left:auto;color:var(--muted);font-size:12px}
+.feedback-option:has(input:disabled){color:var(--muted);cursor:not-allowed}
 .feedback-form .rating-picker{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .feedback-form .rating-picker span{padding:10px 6px;text-align:center;white-space:nowrap}
 .feedback-basis{padding:14px;border-radius:12px;background:var(--surface-raised);color:var(--muted);font-size:12px;line-height:1.8}

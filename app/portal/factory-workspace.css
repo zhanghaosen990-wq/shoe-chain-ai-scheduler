@@ -83,7 +83,7 @@
 .factory-photo-section img {height:100%;display:block}
 .factory-photo-add {display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:120px;border:1px dashed var(--input-line);border-radius:12px;background:var(--paper);color:var(--muted);font-size:13px}
 .factory-photo-add>span:first-child {font-size:25px;font-weight:300}
-.factory-photo-add:hover {border-color:var(--accent-line);color:var(--accent)}
+.factory-photo-add:hover:not(:has(input:disabled)) {border-color:var(--accent-line);color:var(--accent)}
 .app-factory .badge {gap:7px;background:none;padding:0;border-radius:0}
 .app-factory .badge::before {content:'';width:6px;height:6px;flex-shrink:0;border-radius:50%;background:currentColor}
 .factory-field-heading {display:flex;justify-content:space-between;align-items:center;gap:16px}
