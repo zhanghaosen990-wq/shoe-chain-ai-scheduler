@@ -47,7 +47,7 @@
 .app-factory .factory-order-table .factory-mobile-meta {display:none}
 .factory-open-order {background:none;border:0;color:var(--accent);font-size:12px;padding:8px 0;white-space:nowrap}
 .factory-editor-view:not([hidden]) {animation:brand-enter .22s ease-out both}
-.factory-editor-surface {padding:28px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.factory-editor-surface {padding:28px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .factory-form-fields {padding:0;margin:0;border:0;min-width:0}
 .factory-editor .field {font-size:13px;font-weight:500;gap:9px}
 .factory-editor .field small {font-size:12px;font-weight:400}
@@ -132,7 +132,7 @@
  .factory-view-heading h2 {font-size:16px}
  .factory-view-heading p {font-size:12px;line-height:1.8}
  .factory-save-state {font-size:11px}
- .factory-overview {padding:20px 18px 14px;border-radius:16px;margin-bottom:24px}
+ .factory-overview {padding:20px 18px 14px;border-radius:var(--radius);margin-bottom:24px}
  .factory-overview .metric {padding:0 14px}
  .factory-overview .metric strong {font-size:28px}
  .factory-overview .metric>span {font-size:12px}
