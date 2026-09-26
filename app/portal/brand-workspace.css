@@ -49,6 +49,7 @@
 .brand-secondary-metrics strong {display:flex;align-items:baseline;gap:9px;font-size:29px;line-height:1.3;font-weight:500;letter-spacing:-.7px;font-variant-numeric:tabular-nums}
 .brand-secondary-metrics small {font-size:11px;font-weight:400;letter-spacing:0;color:var(--muted)}
 .brand-distribution {height:7px;display:flex;gap:5px;overflow:hidden;border-radius:5px;margin-bottom:13px}
+.brand-distribution:has(> button:focus-visible) {overflow:visible}
 .brand-distribution button {border:0;min-width:5px;padding:0;border-radius:2px;background:var(--status-color);transition:opacity .2s}
 .brand-distribution button:hover {opacity:.7}
 .brand-status.pending,.brand-workspace .pending {--status-color:var(--amber)}
