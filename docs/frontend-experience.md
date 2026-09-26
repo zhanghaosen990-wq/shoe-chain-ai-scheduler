@@ -2,6 +2,16 @@
 
 Current visual specification: the warm-white / technology-blue revision below supersedes the historical dark-theme and particle-typography revisions. Earlier entries are implementation history.
 
+## Factory contacts and order completion (2026-09-26)
+
+- The owning brand's order drawer shows the assigned factory's current contact name and phone for production and completed orders, resolved only by `order.factoryId`. Pending/rejected orders, other brands and guests do not see that section. Each missing field has an explicit unavailable message.
+- Server factory contacts, including cleared fields, take precedence over local account caches. Existing-factory login sync omits contacts, preserves the latest server values and refreshes its local cache from the response. Explicit profile edits and initial new-factory sync remain supported; the profile editor opens with current server contacts.
+- The owning factory may complete its production order from the existing drawer using `/api/portal/order-status`. Store checks role, ownership and latest state; invalid and repeated completion attempts fail without writes. The existing brand completion workflow is preserved.
+- Shared form operations suppress duplicate submissions and remain busy across drawer reopening. Failed status changes refresh the current snapshot while retaining an inline error. Completed orders remain in factory all/completed views and release booked capacity. No CSS or unrelated workspace layout changes.
+- Verification: `npm test` (74 tests), `npm run build`, and `node app/verify-factory-completion.cjs` pass. The dedicated browser regression uses isolated temporary state on port 4189 and exercises contacts, cache precedence, permissions, stale state, duplicate submissions, filters and brand completion.
+- Existing `verify-order-flow.cjs`, `verify-auth.cjs`, `verify-factory-tabs.cjs` and `verify-brand-workspace.cjs` also pass. Auth/order-flow screenshots now use their existing temporary test directories so these checks run on Windows. `git diff --check` passes.
+- Existing demo identity uses `X-Account-Id`; public profiles and snapshot API visibility are unchanged. The contact visibility gate applies to the order drawer, not a new API confidentiality boundary.
+
 Approved brief: the user's implementation plan in this conversation.
 
 - Work in the existing checkout on codex/frontend-experience so the result remains immediately usable in the shared workspace. Preserve the unrelated deleted PDF and local data.
