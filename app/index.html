@@ -33,7 +33,7 @@
           <div class="upload-panel">
             <div class="upload-panel-heading"><div><h3>样品图片</h3><p>支持鞋子或衣服样品图，可上传多张</p></div><span class="upload-badge">JPG / PNG</span></div>
             <div id="sample-dropzone" class="dropzone" role="button" tabindex="0" aria-label="上传样品图片">
-              <input id="sample-images-input" class="file-input" type="file" accept="image/jpeg,image/png" multiple />
+              <input id="sample-images-input" class="file-input" type="file" tabindex="-1" accept="image/jpeg,image/png" multiple />
               <span class="upload-icon">＋</span><strong>拖拽图片至此，或点击选择</strong><small>单张图片不超过 5MB</small>
             </div>
             <div id="sample-preview" class="preview-grid" aria-live="polite"></div>
@@ -41,7 +41,7 @@
           <div class="upload-panel">
             <div class="upload-panel-heading"><div><h3>BOM 设计单</h3><p>选择文件后点击“开始识别”，结果将回填下方 BOM 表单</p></div><span class="upload-badge">PDF / XLSX / 图片</span></div>
             <div id="bom-dropzone" class="dropzone" role="button" tabindex="0" aria-label="上传 BOM 设计单">
-              <input id="bom-file-input" class="file-input" type="file" accept=".pdf,.xls,.xlsx,image/jpeg,image/png" />
+              <input id="bom-file-input" class="file-input" type="file" tabindex="-1" accept=".pdf,.xls,.xlsx,image/jpeg,image/png" />
               <span class="upload-icon">↥</span><strong>上传 BOM 设计单</strong><small>支持拖拽 PDF、Excel 或图片文件</small>
             </div>
             <div class="bom-actions"><p>选择文件后不会自动识别，请确认资料无误后再开始。</p><button id="start-bom-recognition" type="button" disabled>开始识别 BOM <span>→</span></button></div>
