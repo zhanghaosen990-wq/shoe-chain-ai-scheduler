@@ -118,7 +118,7 @@
 .brand-all-clear>span {display:grid;place-items:center;width:31px;height:31px;border:1px solid var(--success-line);color:var(--success);border-radius:50%;font-size:16px;margin-bottom:18px}
 .brand-all-clear strong {font-size:13px;font-weight:500;color:var(--muted)}
 .brand-all-clear p {font-size:11px;color:var(--muted);margin:7px 0 0}
-:is(.app-brand,.app-factory) .empty {box-shadow:var(--shadow);background:var(--card);border:1px solid var(--line);font-size:13px}
+:is(.app-brand,.app-factory) :is(.empty,.factory-empty) {box-shadow:var(--shadow);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:38px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.9}
 :is(.app-brand,.app-factory) .empty-art {width:62px;height:52px;color:var(--accent)}
 
 .brand-list-page {padding:4px 0 0}
