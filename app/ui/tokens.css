@@ -57,8 +57,8 @@ button,a,input,textarea,select,summary { -webkit-tap-highlight-color:transparent
 button { cursor:pointer; color:inherit; }
 button,a { touch-action:manipulation; }
 button,.primary,.secondary { transition:background .2s,box-shadow .2s,transform .2s,border-color .2s,color .2s; }
-button:hover:not(:disabled),.primary:hover,.secondary:hover { box-shadow:var(--glow-shadow); }
-button:active:not(:disabled),.primary:active,.secondary:active { transform:translateY(1px) scale(.985); }
+button:hover:not(:disabled),.primary:hover:not(:disabled),.secondary:hover:not(:disabled) { box-shadow:var(--glow-shadow); }
+button:active:not(:disabled),.primary:active:not(:disabled),.secondary:active:not(:disabled) { transform:translateY(1px) scale(.985); }
 button:disabled { opacity:.52; cursor:not-allowed; box-shadow:none; }
 a { color:inherit; }
 input,textarea,select { min-width:0; accent-color:var(--accent); color-scheme:light; transition:border-color .18s,box-shadow .18s; }
