@@ -2,9 +2,7 @@
 .factory-workspace {min-width:0}
 .factory-hero-actions {display:flex;align-items:center;gap:20px;flex-shrink:0}
 .factory-hero-actions .brand-profile-link {display:inline-flex;padding:8px 0}
-.factory-nav-row .brand-nav button[aria-current=page] {color:var(--accent)}
 .factory-nav-row .brand-nav {gap:32px}
-.factory-nav-row .brand-nav button:hover {box-shadow:none;background:none}
 .factory-view-heading {display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px}
 .factory-view-heading h2 {font-size:17px;line-height:1.5;font-weight:600;letter-spacing:-.3px;margin:0}
 .factory-view-heading p {font-size:12px;margin:7px 0 0}
@@ -22,14 +20,10 @@
 .factory-metric-help p {font-size:12px;line-height:1.8;margin:12px 0 0;max-width:900px}
 .factory-recent .factory-view-heading {margin-bottom:16px}
 .factory-recent .brand-link {font-size:13px}
-.app-factory .factory-recent .factory-order-table td {padding-top:12px;padding-bottom:12px}
-.factory-empty {padding:36px 24px;text-align:center;font-size:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--muted);margin:0}
-.factory-empty p {margin:0 0 8px}
+.factory-empty {margin:0}
+.factory-empty p {margin:0;line-height:inherit}
 .factory-orders {margin:0}
 .factory-schedule-summary {color:var(--muted);font-variant-numeric:tabular-nums}
-.factory-orders .brand-filters button {font-size:13px}
-.factory-orders .brand-search input {font-size:13px}
-.factory-orders .brand-order-toolbar {gap:20px}
 .app-factory .factory-order-table {display:table}
 .app-factory .factory-order-table th:nth-child(1) {width:30%}
 .app-factory .factory-order-table th:nth-child(2) {width:23%}
@@ -38,11 +32,7 @@
 .app-factory .factory-order-table th:nth-child(5) {width:13%}
 .app-factory .factory-order-table th:nth-child(6) {width:9%}
 .app-factory .factory-order-table tr {padding:0;margin:0;border-radius:0}
-.app-factory .factory-order-table th {font-size:12px}
-.app-factory .factory-order-table td {font-size:13px;padding-top:16px;padding-bottom:16px}
-.app-factory .factory-order-table td strong {font-size:13px}
-.app-factory .factory-order-table td small {font-size:11px}
-.app-factory .factory-order-table td>a {font-size:12px}
+.factory-orders .factory-order-table td {padding-top:16px;padding-bottom:16px}
 .app-factory .factory-order-table tr:focus {outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
 .app-factory .factory-order-table .factory-mobile-meta {display:none}
 .factory-open-order {background:none;border:0;color:var(--accent);font-size:12px;padding:8px 0;white-space:nowrap}
