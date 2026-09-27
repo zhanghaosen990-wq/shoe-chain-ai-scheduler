@@ -21,7 +21,7 @@ function OrderList({orders,factories,onOpen,empty}){
   if(!orders.length)return empty;
   return <div className="brand-table-wrap"><table className="brand-order-table"><thead><tr><th>订单 / 款式</th><th>合作工厂</th><th>数量</th><th>状态</th><th><span className="brand-sr-only">查看</span></th></tr></thead><tbody>{orders.map(order=>{
     const factory=factories.find(f=>f.id===order.factoryId);
-    return <tr key={order.id}><td><strong title={order.title}>{order.title}</strong><small>{formatDate(order.updatedAt||order.createdAt)} · {order.id.slice(0,8)}</small></td><td><Link to={`/profile/${order.factoryId}`} title={factory?.name}>{factory?.name||'未提供'}</Link></td><td>{order.quantity.toLocaleString()}<small>件 / 双</small></td><td><Status value={order.status}/></td><td><button className="brand-order-open" aria-label={`查看需求：${order.title}`} onClick={()=>onOpen(order.id)}><Arrow/></button></td></tr>;
+    return <tr key={order.id}><td><strong title={order.title}>{order.title}</strong><small>{formatDate(order.updatedAt||order.createdAt)} · {order.id.slice(0,8)}</small></td><td><Link to={`/profile/${order.factoryId}`} title={factory?.name}>{factory?.name||'未提供'}</Link></td><td>{order.quantity.toLocaleString()}<small>件 / 双</small></td><td><Status value={order.status}/></td><td><button className="brand-order-open" aria-label={`查看需求：${order.title}`} onClick={()=>onOpen(order.id)}><span className="brand-order-open-label">详情</span><Arrow/></button></td></tr>;
   })}</tbody></table></div>;
 }
 

@@ -178,6 +178,39 @@
 @media(min-width:1500px) {
   :is(.app-brand,.app-factory) .portal-shell {padding-top:36px}
 }
+/* Keep orders and next actions in the laptop demo's first viewport. */
+@media(min-width:1101px) {
+  :is(.app-brand,.app-factory) .portal-shell {padding-top:20px}
+  .brand-hero {padding:14px 28px}
+  .brand-kicker {margin-bottom:6px}
+  .brand-hero h1 {font-size:28px;margin-bottom:4px}
+  .brand-nav-row {margin-bottom:16px}
+  .brand-overview {padding:16px 24px 12px;margin-bottom:16px}
+  .brand-section-head {margin-bottom:12px}
+  .brand-metrics-row {margin:12px 0}
+  .brand-active {padding:12px 22px}
+  .brand-active-number {font-size:44px}
+  .brand-recent>.brand-section-head {margin-bottom:12px}
+  .brand-list-page>.brand-section-head {margin-bottom:16px}
+  .factory-overview .factory-view-heading {margin-bottom:12px}
+  .app-brand .brand-order-table th:nth-child(1) {width:35%}
+  .app-brand .brand-order-table th:nth-child(2) {width:26%}
+  .app-brand .brand-order-table th:nth-child(4) {width:16%}
+  .app-brand .brand-order-table th:nth-child(5) {width:11%}
+  .brand-order-open {display:flex;gap:4px;width:auto;padding:6px 8px;border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);font-size:12px;white-space:nowrap}
+  .brand-order-open svg {width:14px;height:14px}
+  :is(.app-brand,.app-factory) .brand-order-table td strong {white-space:normal;overflow-wrap:anywhere}
+  :is(.app-brand,.app-factory) .brand-drawer .order-detail-form>.modal-actions,
+  .brand-drawer .brand-detail-actions {position:sticky;bottom:-32px;z-index:1;background:var(--paper);padding:16px 0 32px;margin-top:20px;border-top:1px solid var(--line)}
+}
+.brand-order-open-label {display:none}
+@media(min-width:1101px) {.brand-order-open-label {display:inline}}
+.brand-drawer .order-contact {padding:16px 18px;margin:18px 0;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--radius)}
+.brand-drawer .order-contact h3 {font-family:inherit;font-size:14px;margin:0;color:var(--accent)}
+.brand-drawer .order-contact .demand-details {margin:8px 0 0}
+.brand-drawer .order-contact .demand-details>div:last-child {border-bottom:0;padding-bottom:0}
+.brand-drawer .order-detail-form>p:first-child {overflow-wrap:anywhere}
+.brand-drawer .order-detail-status {margin:0 0 16px}
 @media(max-width:1100px) {
   .brand-overview-bottom {grid-template-columns:minmax(0,1fr) 260px;gap:20px}
   .brand-metrics-row {gap:24px}
