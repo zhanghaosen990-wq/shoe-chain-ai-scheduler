@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useDraftState,useFormTask} from './ui';
 import {randomId} from '../ui/runtime';
+import {Status} from './workspace-status';
 const labels={style_name:'款式名称',sku_code:'货号',color_info:'颜色',size_range:'尺码',fabric_details:'面料',accessory_details:'辅料',craftsmanship:'制作工艺',material_info:'物料说明'};
 export function DemandDetails({demand,quantity}){
  if(!demand)return <p className="muted">历史订单未提供详细需求。</p>;
@@ -37,9 +38,10 @@ export function OrderDetailsModal({order,data,account,mutate,notify,onClose,Moda
   if(busy||!(status==='completed'?canComplete:canAct))return;
   run(async()=>{await mutate('order-status',{orderId:order.id,status,reason,confirmRisks:ack});notify(status==='completed'?'订单已完成，产能已更新':status==='production'?'已接单，产能已更新':'已拒绝，品牌方可查看原因并重新分配');});
  }
- return <Modal title="订单需求详情" onClose={onClose}><form onSubmit={e=>{e.preventDefault();if(!busy&&canAct&&action&&(action==='accept'?ack:reason.trim()))change(action==='accept'?'production':'rejected');}}>
+ return <Modal title="订单需求详情" onClose={onClose}><form className="order-detail-form" onSubmit={e=>{e.preventDefault();if(!busy&&canAct&&action&&(action==='accept'?ack:reason.trim()))change(action==='accept'?'production':'rejected');}}>
   <p>{order.title} · {order.quantity} 件/双</p><p className="muted">品牌：{data.brands.find(b=>b.id===order.brandId)?.name} · 工厂：{factory?.name||'工厂资料暂不可用'}</p>
-  {showContact&&<section aria-label="承接工厂联系方式"><h3>承接工厂联系方式</h3><dl className="demand-details"><div><dt>联系人</dt><dd>{factory?.contactName?.trim()||'联系人未提供'}</dd></div><div><dt>联系电话</dt><dd>{factory?.phone?.trim()||'联系电话未提供'}</dd></div></dl></section>}
+  <div className="order-detail-status"><Status value={order.status}/></div>
+  {showContact&&<section className="order-contact" aria-label="承接工厂联系方式"><h3>承接工厂联系方式</h3><dl className="demand-details"><div><dt>联系人</dt><dd>{factory?.contactName?.trim()||'联系人未提供'}</dd></div><div><dt>联系电话</dt><dd>{factory?.phone?.trim()||'联系电话未提供'}</dd></div></dl></section>}
   <DemandDetails demand={order.demand} quantity={order.quantity}/>
   {order.risks?.length>0&&<div className="order-risks"><h3>提交时的推荐风险</h3><ul>{order.risks.map((r,i)=><li key={i}>{r}</li>)}</ul></div>}
   {order.rejectionReason&&<p className="form-error">拒绝原因：{order.rejectionReason}</p>}{order.reassignedBy&&<p className="muted">该部分数量已重新分配，原拒绝记录保留。</p>}
