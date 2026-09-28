@@ -11,7 +11,14 @@ function seed() {
   const factories = demo.factories.map((f, i) => ({ ...f, role: 'factory', name: f.name.replace('（模拟）', ''), description: ['专注皮鞋精工制造，支持小批量协同生产。', '灵活排期与稳定交付，服务成长中的鞋履品牌。', '高端鞋履定制与精细化生产。'][i], categories: [...f.categories], equipment: ['电脑针车 × 12', '裁断机 × 2', '定型设备 × 3'], dailyCapacity: [60, 40, 100][i], images: [], delivered: [982, 951, 960][i], deliveryTotal: 1000, qualityPassed: [995, 988, 992][i], qualityTotal: 1000 }));
   const orders = [
     { id: 'DEMO-001', brandId: 'BRAND-A', factoryId: 'FAC-A', title: '轻商务德训鞋 · 秋季补单', quantity: 300, status: 'completed', createdAt: '2026-09-01T09:00:00Z' },
-    { id: 'DEMO-002', brandId: 'BRAND-A', factoryId: 'FAC-B', title: '城市通勤皮鞋', quantity: 200, status: 'production', createdAt: '2026-09-10T09:00:00Z' },
+    { id: 'DEMO-002', brandId: 'BRAND-A', factoryId: 'FAC-A', title: '城市通勤皮鞋', quantity: 300, status: 'production', createdAt: '2026-09-10T09:00:00Z',
+      demand: {
+        bom_data: { style_name: '城市通勤皮鞋', sku_code: 'CITY-2609-02', color_info: '深咖色', size_range: '39–44 码，每码 50 双', craftsmanship: '头层牛皮鞋面、固特异外观线、橡胶大底', fabric_details: '头层牛皮鞋面，透气网布内里', accessory_details: '同色鞋带、缓震鞋垫、独立鞋盒', material_info: '皮料色差及耐折性能按确认样验收' },
+        sample_images: [],
+        planning_context: { category: '商务男鞋', quantity: 300, deadline_days: 10, splittable: false },
+        production_requirements: { cooperation_mode: '包工包料', special_notes: '按确认样生产；左右脚配对检查，按尺码分箱并标注数量。演示需求，非真实采购订单。' }
+      }
+    },
     { id: 'DEMO-003', brandId: 'BRAND-B', factoryId: 'FAC-A', title: '联名系列配套鞋履', quantity: 350, status: 'completed', createdAt: '2026-08-15T09:00:00Z' },
     { id: 'DEMO-004', brandId: 'BRAND-B', factoryId: 'FAC-C', title: '礼服配套定制皮鞋', quantity: 500, status: 'completed', createdAt: '2026-08-21T09:00:00Z' },
     { id: 'DEMO-005', brandId: 'BRAND-A', factoryId: 'FAC-B', title: '休闲鞋首批试单', quantity: 200, status: 'completed', createdAt: '2026-08-03T09:00:00Z' }
