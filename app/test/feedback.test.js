@@ -15,6 +15,6 @@ test('store validates new questionnaire and prevents duplicates without affectin
 });
 test('legacy real review can be supplemented once in place; seeded reviews remain excluded',t=>{
  const {store,file}=setup(t);const state=store.snapshot();state.reviews.unshift({id:'legacy-user',orderId:'DEMO-001',brandId:'BRAND-A',factoryId:'FAC-A',rating:4,comment:'历史反馈',createdAt:'2026-09-10T00:00:00Z'});fs.writeFileSync(file,JSON.stringify(state));const migrated=createStore(file);
- const next=migrated.review('BRAND-A',{orderId:'DEMO-001',...fields,comment:'历史反馈'});assert.equal(next.reviews.length,4);assert.equal(next.reviews[0].id,'legacy-user');assert.equal(next.factories[0].analytics.reviewCount,1);assert.throws(()=>migrated.review('BRAND-A',{orderId:'DEMO-001',...fields}));assert.throws(()=>migrated.review('BRAND-B',{orderId:'DEMO-003',...fields}));
+ const next=migrated.review('BRAND-A',{orderId:'DEMO-001',...fields,comment:'历史反馈'});assert.equal(next.reviews.length,state.reviews.length);assert.equal(next.reviews[0].id,'legacy-user');assert.equal(next.factories[0].analytics.reviewCount,1);assert.throws(()=>migrated.review('BRAND-A',{orderId:'DEMO-001',...fields}));assert.throws(()=>migrated.review('BRAND-B',{orderId:'DEMO-003',...fields}));
  const restored=createStore(file).snapshot();assert.equal(restored.reviews[0].analysisStatus,'failed');assert.equal(restored.factories[0].analytics.reviewCount,1);
 });

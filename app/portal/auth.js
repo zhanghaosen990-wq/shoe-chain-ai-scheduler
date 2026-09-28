@@ -1,6 +1,6 @@
 const {randomId,sha256}=require('../ui/runtime');
 const USERS='shoe-users-v1', SESSION='shoe-session-v1';
-const seeds=[['BRAND-A','brand_01','迈斯特时尚服饰','brand'],['BRAND-B','brand_02','云端鞋履设计室','brand'],['FAC-A','factory_01','瓯越精工鞋业有限公司','factory'],['FAC-B','factory_02','楠江鞋业制造有限公司','factory']];
+const seeds=require('../../data/demo_accounts.json').map(({id,username,name,role})=>[id,username,name,role]);
 const publicUser=({passwordHash,salt,...user})=>user;
 async function hash(password,salt,cryptoApi){return sha256(salt+':'+password,cryptoApi);}
 function createAuth(storage,cryptoApi=globalThis.crypto){
