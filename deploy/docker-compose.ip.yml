@@ -1,0 +1,25 @@
+# 比赛演示：公网 IP + 端口访问。无需域名；仅使用虚构演示数据。
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      PORT: "4173"
+      PORTAL_STATE_FILE: /app/data/portal-state.json
+    ports:
+      - "0.0.0.0:${PUBLIC_PORT:-8000}:4173"
+    volumes:
+      - portal_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4173/api/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  portal_data:
