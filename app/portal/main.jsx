@@ -171,7 +171,8 @@ function Landing() {
   return <>
     <section className={'landing-hero'+(settled?' is-ready':' is-converging')+(skipped?' intro-skipped':'')} aria-label="鞋链智排：连接设计与制造">
       <ParticleCanvas/>
-      <div className="landing-particle-stage" aria-hidden="true"/>
+      <div className="landing-visual" aria-hidden="true"><div className="landing-particle-stage"/></div>
+      <p className="landing-eyebrow">DESIGN → PRODUCTION <span>AI 驱动的制造协作平台</span></p>
       {!settled&&<button type="button" className="intro-skip" onClick={skip}>跳过动画 <span aria-hidden="true">↗</span></button>}
       <h1 className="particle-title"><span>让好设计，</span><span>遇见好制造。</span></h1>
       <div className="landing-details">
@@ -182,6 +183,7 @@ function Landing() {
           <div><button className="secondary" onClick={()=>enter('factory')}>承接品牌订单 <span aria-hidden="true">↗</span></button><small>工厂方 · 展示制造能力</small></div>
         </div>
       </div>
+      <div className="landing-process" aria-label="协作流程"><span>01 <strong>设计需求</strong></span><i>→</i><span>02 <strong>智能排期</strong></span><i>→</i><span>03 <strong>制造交付</strong></span></div>
       <a href="#why-agent" className="explore-link">为什么我们的 Agent 不一样 <span aria-hidden="true">↓</span></a>
     </section>
     <section ref={why} className="landing-why" id="why-agent" aria-labelledby="why-title">
