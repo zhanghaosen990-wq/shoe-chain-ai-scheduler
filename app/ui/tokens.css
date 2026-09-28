@@ -84,7 +84,8 @@ small { font-size:12px; }
 .empty-art .wash { fill:var(--accent-bg); stroke:none; }
 .empty p { margin:8px 0; font-size:14px; }
 .empty .primary { margin-top:12px; }
-.toast-stack { margin:0; padding:0; border:0; background:transparent; overflow:visible; position:fixed; inset:auto 24px auto auto; top:max(var(--toast-offset,24px),env(safe-area-inset-top)); width:min(420px,calc(100vw - 32px)); z-index:10000; display:grid; gap:10px; pointer-events:none; color:var(--ink); }
+/* Reset the native popover height so Safari sizes the grid to its messages. */
+.toast-stack { margin:0; padding:0; border:0; background:transparent; overflow:visible; position:fixed; inset:auto 24px auto auto; top:max(var(--toast-offset,24px),env(safe-area-inset-top)); width:min(420px,calc(100vw - 32px)); height:auto; z-index:10000; display:grid; gap:10px; pointer-events:none; color:var(--ink); }
 .toast-message { display:flex; align-items:center; gap:12px; padding:16px 18px; border:1px solid var(--accent-line); border-radius:14px; background:var(--overlay-bg); backdrop-filter:blur(12px); box-shadow:var(--overlay-shadow); pointer-events:auto; font-size:14px; animation:toast-enter .2s ease-out; }
 .toast-message>span:nth-child(2) { flex:1; min-width:0; overflow-wrap:anywhere; }
 .toast-message.error { border-color:var(--error-line); }
