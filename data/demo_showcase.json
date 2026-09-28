@@ -1,0 +1,826 @@
+{
+  "brands": [
+    {
+      "id": "BRAND-A",
+      "name": "迈斯特时尚服饰",
+      "city": "温州 · 永嘉",
+      "categories": [
+        "商务男鞋",
+        "正装皮鞋"
+      ],
+      "description": "都市商务鞋服品牌，专注轻商务与舒适通勤。",
+      "role": "brand"
+    },
+    {
+      "id": "BRAND-B",
+      "name": "云端鞋履设计室",
+      "city": "杭州 · 滨江",
+      "categories": [
+        "真皮女鞋",
+        "高端定制皮鞋"
+      ],
+      "description": "原创鞋履设计品牌，关注女鞋、礼服配套鞋履与小批量定制。",
+      "role": "brand"
+    },
+    {
+      "id": "BRAND-C",
+      "name": "岚序男装",
+      "city": "温州 · 瓯海",
+      "categories": [
+        "男装",
+        "商务衬衫",
+        "西服",
+        "POLO衫"
+      ],
+      "description": "面向城市通勤人群，开发商务衬衫、西服套装和休闲POLO系列。",
+      "role": "brand"
+    },
+    {
+      "id": "BRAND-D",
+      "name": "拾光女装",
+      "city": "杭州 · 上城",
+      "categories": [
+        "女装",
+        "连衣裙",
+        "针织衫",
+        "内衣",
+        "家居服"
+      ],
+      "description": "以日常穿搭和轻礼服为主，兼顾针织基础款与家居系列。",
+      "role": "brand"
+    },
+    {
+      "id": "BRAND-E",
+      "name": "森芽童趣",
+      "city": "湖州 · 吴兴",
+      "categories": [
+        "童装",
+        "婴童服装",
+        "校服",
+        "童鞋"
+      ],
+      "description": "覆盖校园与亲子生活场景，重视亲肤面料、尺码配比及成衣安全。",
+      "role": "brand"
+    },
+    {
+      "id": "BRAND-F",
+      "name": "逐野运动",
+      "city": "宁波 · 鄞州",
+      "categories": [
+        "运动服装",
+        "冲锋衣",
+        "瑜伽裤",
+        "运动鞋",
+        "户外鞋"
+      ],
+      "description": "面向轻户外与日常训练，开发功能服饰和轻量运动鞋系列。",
+      "role": "brand"
+    }
+  ],
+  "orders": [
+    {
+      "id": "SHOWCASE-01-1",
+      "brandId": "BRAND-C",
+      "factoryId": "FAC-D",
+      "title": "免烫商务衬衫 · 新品试单",
+      "quantity": 300,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "免烫商务衬衫",
+          "sku_code": "DEMO-D-2609-1",
+          "color_info": "雾蓝色",
+          "size_range": "S–XXL，按确认配码表执行",
+          "craftsmanship": "平缝、锁眼钉扣、整烫定型",
+          "fabric_details": "精梳棉混纺面料",
+          "accessory_details": "纽扣、粘合衬",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "商务衬衫",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-01-2",
+      "brandId": "BRAND-C",
+      "factoryId": "FAC-D",
+      "title": "免烫商务衬衫 · 秋季补单",
+      "quantity": 300,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "免烫商务衬衫",
+          "sku_code": "DEMO-D-2609-2",
+          "color_info": "雾蓝色",
+          "size_range": "S–XXL，按确认配码表执行",
+          "craftsmanship": "平缝、锁眼钉扣、整烫定型",
+          "fabric_details": "精梳棉混纺面料",
+          "accessory_details": "纽扣、粘合衬",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "商务衬衫",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-01-3",
+      "brandId": "BRAND-C",
+      "factoryId": "FAC-D",
+      "title": "免烫商务衬衫 · 首批交付",
+      "quantity": 300,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "免烫商务衬衫",
+          "sku_code": "DEMO-D-2609-3",
+          "color_info": "雾蓝色",
+          "size_range": "S–XXL，按确认配码表执行",
+          "craftsmanship": "平缝、锁眼钉扣、整烫定型",
+          "fabric_details": "精梳棉混纺面料",
+          "accessory_details": "纽扣、粘合衬",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "商务衬衫",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-02-1",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-E",
+      "title": "秋日缎面连衣裙 · 新品试单",
+      "quantity": 150,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "秋日缎面连衣裙",
+          "sku_code": "DEMO-E-2609-1",
+          "color_info": "香槟色",
+          "size_range": "XS–XL，按确认配码表执行",
+          "craftsmanship": "立体裁剪、法式包缝、隐形拉链",
+          "fabric_details": "醋酸缎面料",
+          "accessory_details": "隐形拉链、里布",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "连衣裙",
+          "quantity": 150,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-02-2",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-E",
+      "title": "秋日缎面连衣裙 · 秋季补单",
+      "quantity": 150,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "秋日缎面连衣裙",
+          "sku_code": "DEMO-E-2609-2",
+          "color_info": "香槟色",
+          "size_range": "XS–XL，按确认配码表执行",
+          "craftsmanship": "立体裁剪、法式包缝、隐形拉链",
+          "fabric_details": "醋酸缎面料",
+          "accessory_details": "隐形拉链、里布",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "连衣裙",
+          "quantity": 150,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-02-3",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-E",
+      "title": "秋日缎面连衣裙 · 首批交付",
+      "quantity": 150,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "秋日缎面连衣裙",
+          "sku_code": "DEMO-E-2609-3",
+          "color_info": "香槟色",
+          "size_range": "XS–XL，按确认配码表执行",
+          "craftsmanship": "立体裁剪、法式包缝、隐形拉链",
+          "fabric_details": "醋酸缎面料",
+          "accessory_details": "隐形拉链、里布",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "连衣裙",
+          "quantity": 150,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-03-1",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-F",
+      "title": "亲肤针织开衫 · 新品试单",
+      "quantity": 400,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "亲肤针织开衫",
+          "sku_code": "DEMO-F-2609-1",
+          "color_info": "燕麦色",
+          "size_range": "S–XL，按确认配码表执行",
+          "craftsmanship": "电脑横机编织、套口缝合、水洗预缩",
+          "fabric_details": "精梳棉纱",
+          "accessory_details": "贝壳扣、尺码唛",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "针织衫",
+          "quantity": 400,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-03-2",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-F",
+      "title": "亲肤针织开衫 · 秋季补单",
+      "quantity": 400,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "亲肤针织开衫",
+          "sku_code": "DEMO-F-2609-2",
+          "color_info": "燕麦色",
+          "size_range": "S–XL，按确认配码表执行",
+          "craftsmanship": "电脑横机编织、套口缝合、水洗预缩",
+          "fabric_details": "精梳棉纱",
+          "accessory_details": "贝壳扣、尺码唛",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "针织衫",
+          "quantity": 400,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-03-3",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-F",
+      "title": "亲肤针织开衫 · 首批交付",
+      "quantity": 400,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "亲肤针织开衫",
+          "sku_code": "DEMO-F-2609-3",
+          "color_info": "燕麦色",
+          "size_range": "S–XL，按确认配码表执行",
+          "craftsmanship": "电脑横机编织、套口缝合、水洗预缩",
+          "fabric_details": "精梳棉纱",
+          "accessory_details": "贝壳扣、尺码唛",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "针织衫",
+          "quantity": 400,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-04-1",
+      "brandId": "BRAND-E",
+      "factoryId": "FAC-G",
+      "title": "校园纯棉卫衣 · 新品试单",
+      "quantity": 300,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "校园纯棉卫衣",
+          "sku_code": "DEMO-G-2609-1",
+          "color_info": "奶油白",
+          "size_range": "110–160，按确认配码表执行",
+          "craftsmanship": "四线拷边、包边、电脑刺绣、检针",
+          "fabric_details": "纯棉毛圈布",
+          "accessory_details": "罗纹、织唛",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "儿童卫衣",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-04-2",
+      "brandId": "BRAND-E",
+      "factoryId": "FAC-G",
+      "title": "校园纯棉卫衣 · 秋季补单",
+      "quantity": 300,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "校园纯棉卫衣",
+          "sku_code": "DEMO-G-2609-2",
+          "color_info": "奶油白",
+          "size_range": "110–160，按确认配码表执行",
+          "craftsmanship": "四线拷边、包边、电脑刺绣、检针",
+          "fabric_details": "纯棉毛圈布",
+          "accessory_details": "罗纹、织唛",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "儿童卫衣",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-04-3",
+      "brandId": "BRAND-E",
+      "factoryId": "FAC-G",
+      "title": "校园纯棉卫衣 · 首批交付",
+      "quantity": 300,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "校园纯棉卫衣",
+          "sku_code": "DEMO-G-2609-3",
+          "color_info": "奶油白",
+          "size_range": "110–160，按确认配码表执行",
+          "craftsmanship": "四线拷边、包边、电脑刺绣、检针",
+          "fabric_details": "纯棉毛圈布",
+          "accessory_details": "罗纹、织唛",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "儿童卫衣",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-05-1",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-H",
+      "title": "轻量防水冲锋衣 · 新品试单",
+      "quantity": 300,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "轻量防水冲锋衣",
+          "sku_code": "DEMO-H-2609-1",
+          "color_info": "苔绿色",
+          "size_range": "S–XXL，按确认配码表执行",
+          "craftsmanship": "激光裁剪、防水压胶、无缝贴合",
+          "fabric_details": "三层复合面料",
+          "accessory_details": "防水拉链、织带",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "冲锋衣",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-05-2",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-H",
+      "title": "轻量防水冲锋衣 · 秋季补单",
+      "quantity": 300,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "轻量防水冲锋衣",
+          "sku_code": "DEMO-H-2609-2",
+          "color_info": "苔绿色",
+          "size_range": "S–XXL，按确认配码表执行",
+          "craftsmanship": "激光裁剪、防水压胶、无缝贴合",
+          "fabric_details": "三层复合面料",
+          "accessory_details": "防水拉链、织带",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "冲锋衣",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-05-3",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-H",
+      "title": "轻量防水冲锋衣 · 首批交付",
+      "quantity": 300,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "轻量防水冲锋衣",
+          "sku_code": "DEMO-H-2609-3",
+          "color_info": "苔绿色",
+          "size_range": "S–XXL，按确认配码表执行",
+          "craftsmanship": "激光裁剪、防水压胶、无缝贴合",
+          "fabric_details": "三层复合面料",
+          "accessory_details": "防水拉链、织带",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "冲锋衣",
+          "quantity": 300,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-06-1",
+      "brandId": "BRAND-B",
+      "factoryId": "FAC-I",
+      "title": "柔软羊皮乐福鞋 · 新品试单",
+      "quantity": 240,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "柔软羊皮乐福鞋",
+          "sku_code": "DEMO-I-2609-1",
+          "color_info": "奶茶色",
+          "size_range": "35–40，按确认配码表执行",
+          "craftsmanship": "羊皮鞋面、鞋面车缝、胶粘成型、橡胶大底",
+          "fabric_details": "羊皮鞋面",
+          "accessory_details": "橡胶大底、鞋垫",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "乐福鞋",
+          "quantity": 240,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-06-2",
+      "brandId": "BRAND-B",
+      "factoryId": "FAC-I",
+      "title": "柔软羊皮乐福鞋 · 秋季补单",
+      "quantity": 240,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "柔软羊皮乐福鞋",
+          "sku_code": "DEMO-I-2609-2",
+          "color_info": "奶茶色",
+          "size_range": "35–40，按确认配码表执行",
+          "craftsmanship": "羊皮鞋面、鞋面车缝、胶粘成型、橡胶大底",
+          "fabric_details": "羊皮鞋面",
+          "accessory_details": "橡胶大底、鞋垫",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "乐福鞋",
+          "quantity": 240,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-06-3",
+      "brandId": "BRAND-B",
+      "factoryId": "FAC-I",
+      "title": "柔软羊皮乐福鞋 · 首批交付",
+      "quantity": 240,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "柔软羊皮乐福鞋",
+          "sku_code": "DEMO-I-2609-3",
+          "color_info": "奶茶色",
+          "size_range": "35–40，按确认配码表执行",
+          "craftsmanship": "羊皮鞋面、鞋面车缝、胶粘成型、橡胶大底",
+          "fabric_details": "羊皮鞋面",
+          "accessory_details": "橡胶大底、鞋垫",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "乐福鞋",
+          "quantity": 240,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-07-1",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-J",
+      "title": "轻量飞织跑鞋 · 新品试单",
+      "quantity": 600,
+      "status": "pending",
+      "createdAt": "2026-09-27T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "轻量飞织跑鞋",
+          "sku_code": "DEMO-J-2609-1",
+          "color_info": "雾灰色",
+          "size_range": "36–44，按确认配码表执行",
+          "craftsmanship": "飞织鞋面、热熔贴合、EVA发泡中底、橡胶大底",
+          "fabric_details": "飞织鞋面",
+          "accessory_details": "EVA中底、橡胶大底、鞋带",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "跑步鞋",
+          "quantity": 600,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-07-2",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-J",
+      "title": "轻量飞织跑鞋 · 秋季补单",
+      "quantity": 600,
+      "status": "production",
+      "createdAt": "2026-09-24T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "轻量飞织跑鞋",
+          "sku_code": "DEMO-J-2609-2",
+          "color_info": "雾灰色",
+          "size_range": "36–44，按确认配码表执行",
+          "craftsmanship": "飞织鞋面、热熔贴合、EVA发泡中底、橡胶大底",
+          "fabric_details": "飞织鞋面",
+          "accessory_details": "EVA中底、橡胶大底、鞋带",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "跑步鞋",
+          "quantity": 600,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    },
+    {
+      "id": "SHOWCASE-07-3",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-J",
+      "title": "轻量飞织跑鞋 · 首批交付",
+      "quantity": 600,
+      "status": "completed",
+      "createdAt": "2026-09-10T09:00:00Z",
+      "demand": {
+        "bom_data": {
+          "style_name": "轻量飞织跑鞋",
+          "sku_code": "DEMO-J-2609-3",
+          "color_info": "雾灰色",
+          "size_range": "36–44，按确认配码表执行",
+          "craftsmanship": "飞织鞋面、热熔贴合、EVA发泡中底、橡胶大底",
+          "fabric_details": "飞织鞋面",
+          "accessory_details": "EVA中底、橡胶大底、鞋带",
+          "material_info": "按确认样核对颜色、克重或厚度，辅料须先确认样品"
+        },
+        "sample_images": [],
+        "planning_context": {
+          "category": "跑步鞋",
+          "quantity": 600,
+          "deadline_days": 10,
+          "splittable": true
+        },
+        "production_requirements": {
+          "cooperation_mode": "包工包料",
+          "special_notes": "演示订单，非真实采购。先确认产前样；分尺码包装并附装箱清单，交付前完成外观和尺寸抽检。"
+        }
+      }
+    }
+  ],
+  "reviews": [
+    {
+      "id": "SHOWCASE-REVIEW-01",
+      "source": "seed",
+      "orderId": "SHOWCASE-01-3",
+      "brandId": "BRAND-C",
+      "factoryId": "FAC-D",
+      "rating": 5,
+      "comment": "衬衫锁眼整齐，尺码分箱清楚。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "SHOWCASE-REVIEW-02",
+      "source": "seed",
+      "orderId": "SHOWCASE-02-3",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-E",
+      "rating": 4,
+      "comment": "包缝与拉链细节符合确认样，备料进度建议更早同步。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "SHOWCASE-REVIEW-03",
+      "source": "seed",
+      "orderId": "SHOWCASE-03-3",
+      "brandId": "BRAND-D",
+      "factoryId": "FAC-F",
+      "rating": 5,
+      "comment": "针织手感柔软，套口平整，色差控制稳定。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "SHOWCASE-REVIEW-04",
+      "source": "seed",
+      "orderId": "SHOWCASE-04-3",
+      "brandId": "BRAND-E",
+      "factoryId": "FAC-G",
+      "rating": 5,
+      "comment": "绣花和领口细节规整，检针记录完整。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "SHOWCASE-REVIEW-05",
+      "source": "seed",
+      "orderId": "SHOWCASE-05-3",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-H",
+      "rating": 4,
+      "comment": "压胶平整，建议提前确认功能辅料到货节点。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "SHOWCASE-REVIEW-06",
+      "source": "seed",
+      "orderId": "SHOWCASE-06-3",
+      "brandId": "BRAND-B",
+      "factoryId": "FAC-I",
+      "rating": 5,
+      "comment": "鞋面柔软，左右脚配对与包装检查仔细。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    },
+    {
+      "id": "SHOWCASE-REVIEW-07",
+      "source": "seed",
+      "orderId": "SHOWCASE-07-3",
+      "brandId": "BRAND-F",
+      "factoryId": "FAC-J",
+      "rating": 5,
+      "comment": "飞织鞋面轻便，中底贴合整齐，配码准确。",
+      "createdAt": "2026-09-20T08:00:00Z"
+    }
+  ]
+}

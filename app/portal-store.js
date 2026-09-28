@@ -6,9 +6,11 @@ const { assessFactory } = require('./recommendations');
 const { randomUUID, createHash } = require('node:crypto');
 const {calculateFeedback,isCompleteFeedback,isSeedReview,validAnswers}=require('./feedback');
 const demo = require('../data/demo_data.json');
+const showcase = require('../data/demo_showcase.json');
+const demoAccounts = require('../data/demo_accounts.json');
 function seed() {
-  const brands = [{ id: 'BRAND-A', role: 'brand', name: '云步男鞋', city: '温州 · 永嘉', description: '都市商务鞋履品牌，专注轻商务与舒适通勤。' }, { id: 'BRAND-B', role: 'brand', name: '拾光衣舍', city: '杭州 · 滨江', description: '设计师女装品牌，关注小批量试单与精细工艺。' }];
-  const factories = demo.factories.map((f, i) => ({ ...f, role: 'factory', name: f.name.replace('（模拟）', ''), description: ['专注皮鞋精工制造，支持小批量协同生产。', '灵活排期与稳定交付，服务成长中的鞋履品牌。', '高端鞋履定制与精细化生产。'][i], categories: [...f.categories], equipment: ['电脑针车 × 12', '裁断机 × 2', '定型设备 × 3'], dailyCapacity: [60, 40, 100][i], images: [], delivered: [982, 951, 960][i], deliveryTotal: 1000, qualityPassed: [995, 988, 992][i], qualityTotal: 1000 }));
+  const brands = structuredClone(showcase.brands);
+  const factories = demo.factories.map((f, i) => ({ ...f, role: 'factory', name: demoAccounts.find(a=>a.id===f.id).name, description: f.description || ['专注皮鞋精工制造，支持小批量协同生产。', '灵活排期与稳定交付，服务成长中的鞋履品牌。', '高端鞋履定制与精细化生产。'][i], categories: [...f.categories], equipment: f.equipment || ['电脑针车 × 12', '裁断机 × 2', '定型设备 × 3'], dailyCapacity: f.dailyCapacity ?? [60, 40, 100][i], images: [], delivered: [982, 951, 960][i] ?? 0, deliveryTotal: i < 3 ? 1000 : 0, qualityPassed: [995, 988, 992][i] ?? 0, qualityTotal: i < 3 ? 1000 : 0 }));
   const orders = [
     { id: 'DEMO-001', brandId: 'BRAND-A', factoryId: 'FAC-A', title: '轻商务德训鞋 · 秋季补单', quantity: 300, status: 'completed', createdAt: '2026-09-01T09:00:00Z' },
     { id: 'DEMO-002', brandId: 'BRAND-A', factoryId: 'FAC-A', title: '城市通勤皮鞋', quantity: 300, status: 'production', createdAt: '2026-09-10T09:00:00Z',
@@ -28,11 +30,22 @@ function seed() {
     { id: 'REVIEW-2', orderId: 'DEMO-004', brandId: 'BRAND-B', factoryId: 'FAC-C', rating: 5, comment: '样品确认认真，成品做工符合约定要求。', createdAt: '2026-09-02T08:00:00Z' },
     { id: 'REVIEW-3', orderId: 'DEMO-005', brandId: 'BRAND-A', factoryId: 'FAC-B', rating: 4, comment: '配合度高，小批量排期灵活，希望提前同步备料进度。', createdAt: '2026-08-16T08:00:00Z' }
   ];
-  return { brands, factories, orders, reviews };
+  return { brands, factories, orders: [...orders, ...structuredClone(showcase.orders)], reviews: [...reviews, ...structuredClone(showcase.reviews)], demoExpansionVersion: 1 };
 }
 function createStore(filename) {
   let state = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf8')) : seed();
   const save = next => { fs.writeFileSync(filename + '.tmp', JSON.stringify(next, null, 2)); fs.renameSync(filename + '.tmp', filename); state = next; };
+  // Add the showcase once; keep all saved edits, contacts and order transitions.
+  if (!state.demoExpansionVersion) {
+    const defaults = seed();
+    const additions = {brands: defaults.brands, factories: defaults.factories, orders: showcase.orders, reviews: showcase.reviews};
+    const next = {...state, demoExpansionVersion: 1};
+    for (const [key, records] of Object.entries(additions)) {
+      const ids = new Set(state[key].map(record=>record.id));
+      next[key] = [...state[key], ...structuredClone(records.filter(record=>!ids.has(record.id)))];
+    }
+    save(next);
+  }
   if(state.reviews.some(r=>r.analysisStatus==='pending'))save({...state,reviews:state.reviews.map(r=>r.analysisStatus==='pending'?{...r,analysisStatus:'failed',analysisError:'分析被服务重启中断，请重试',analysisToken:null}:r)});
   const account = id => [...state.brands, ...state.factories].find(x => x.id === id);
   function requireRole(id, role) { if (account(id)?.role !== role) throw new Error('当前账号无权执行此操作。'); }

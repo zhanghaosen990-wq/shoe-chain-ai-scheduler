@@ -1,0 +1,98 @@
+[
+  {
+    "id": "BRAND-A",
+    "username": "brand_01",
+    "name": "迈斯特时尚服饰",
+    "role": "brand"
+  },
+  {
+    "id": "BRAND-B",
+    "username": "brand_02",
+    "name": "云端鞋履设计室",
+    "role": "brand"
+  },
+  {
+    "id": "BRAND-C",
+    "username": "brand_03",
+    "name": "岚序男装",
+    "role": "brand"
+  },
+  {
+    "id": "BRAND-D",
+    "username": "brand_04",
+    "name": "拾光女装",
+    "role": "brand"
+  },
+  {
+    "id": "BRAND-E",
+    "username": "brand_05",
+    "name": "森芽童趣",
+    "role": "brand"
+  },
+  {
+    "id": "BRAND-F",
+    "username": "brand_06",
+    "name": "逐野运动",
+    "role": "brand"
+  },
+  {
+    "id": "FAC-A",
+    "username": "factory_01",
+    "name": "瓯越精工鞋业有限公司",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-B",
+    "username": "factory_02",
+    "name": "楠江鞋业制造有限公司",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-C",
+    "username": "factory_03",
+    "name": "东蒙高端鞋业",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-D",
+    "username": "factory_04",
+    "name": "瓯江雅仕男装厂",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-E",
+    "username": "factory_05",
+    "name": "拾锦女装智造厂",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-F",
+    "username": "factory_06",
+    "name": "云棉针织服饰厂",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-G",
+    "username": "factory_07",
+    "name": "森芽童装制造厂",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-H",
+    "username": "factory_08",
+    "name": "逐峰运动户外制衣厂",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-I",
+    "username": "factory_09",
+    "name": "鹿城轻履女鞋厂",
+    "role": "factory"
+  },
+  {
+    "id": "FAC-J",
+    "username": "factory_10",
+    "name": "飞织运动鞋制造厂",
+    "role": "factory"
+  }
+]

@@ -1,8 +1,8 @@
 {
   "meta": {
-    "purpose": "鞋链智排原型演示数据",
+    "purpose": "鞋服产业协同平台演示数据",
     "notice": "所有工厂名称、订单编号、产能、物料和指标均为虚构模拟数据，仅用于比赛演示。",
-    "updated_at": "2026-09-13"
+    "updated_at": "2026-09-28"
   },
   "orders": [
     {
@@ -10,9 +10,22 @@
       "brand": "云步男鞋",
       "style_code": "YS-2609-B01",
       "category": "商务男鞋",
-      "process_requirements": ["头层牛皮鞋面", "固特异外观线", "橡胶大底", "38-44码齐全"],
+      "process_requirements": [
+        "头层牛皮鞋面",
+        "固特异外观线",
+        "橡胶大底",
+        "38-44码齐全"
+      ],
       "quantity": 800,
-      "size_breakdown": {"38": 60, "39": 110, "40": 180, "41": 190, "42": 140, "43": 80, "44": 40},
+      "size_breakdown": {
+        "38": 60,
+        "39": 110,
+        "40": 180,
+        "41": 190,
+        "42": 140,
+        "43": 80,
+        "44": 40
+      },
       "color": "深咖色",
       "quality_level": "A类",
       "delivery_deadline_days": 10,
@@ -29,16 +42,44 @@
       "contactName": "陈经理（演示）",
       "phone": "0577-5555-0101",
       "location": "永嘉县",
-      "categories": ["商务男鞋", "正装皮鞋"],
-      "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
+      "categories": [
+        "商务男鞋",
+        "正装皮鞋"
+      ],
+      "process_capabilities": [
+        "头层牛皮鞋面",
+        "固特异外观线",
+        "橡胶大底"
+      ],
       "min_order_quantity": 300,
-      "available_capacity_by_day": [60, 60, 60, 60, 60, 60, 0, 50, 50, 40],
+      "available_capacity_by_day": [
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        0,
+        50,
+        50,
+        40
+      ],
       "earliest_start_date": "2026-09-14",
-      "material_status": {"头层牛皮": "充足", "橡胶大底": "充足", "深咖色染料": "充足"},
+      "material_status": {
+        "头层牛皮": "充足",
+        "橡胶大底": "充足",
+        "深咖色染料": "充足"
+      },
       "on_time_rate": 0.97,
       "cooperation_status": "长期合作",
       "contact_reply_hours": 2,
-      "data_authorization": ["品类", "工艺", "可接产能", "物料满足状态", "最早开工日"]
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ]
     },
     {
       "id": "FAC-B",
@@ -46,31 +87,515 @@
       "contactName": "林经理（演示）",
       "phone": "0577-5555-0102",
       "location": "永嘉县",
-      "categories": ["商务男鞋", "休闲男鞋"],
-      "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
+      "categories": [
+        "商务男鞋",
+        "休闲男鞋"
+      ],
+      "process_capabilities": [
+        "头层牛皮鞋面",
+        "固特异外观线",
+        "橡胶大底"
+      ],
       "min_order_quantity": 200,
-      "available_capacity_by_day": [40, 40, 40, 40, 40, 40, 0, 35, 35, 35],
+      "available_capacity_by_day": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        0,
+        35,
+        35,
+        35
+      ],
       "earliest_start_date": "2026-09-14",
-      "material_status": {"头层牛皮": "充足", "橡胶大底": "充足", "深咖色染料": "充足"},
+      "material_status": {
+        "头层牛皮": "充足",
+        "橡胶大底": "充足",
+        "深咖色染料": "充足"
+      },
       "on_time_rate": 0.89,
       "cooperation_status": "已认证合作",
       "contact_reply_hours": 4,
-      "data_authorization": ["品类", "工艺", "可接产能", "物料满足状态", "最早开工日"]
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ]
     },
     {
       "id": "FAC-C",
       "name": "东蒙高端鞋业（模拟）",
       "location": "永嘉县",
-      "categories": ["商务男鞋", "高端定制皮鞋"],
-      "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
+      "categories": [
+        "商务男鞋",
+        "高端定制皮鞋"
+      ],
+      "process_capabilities": [
+        "头层牛皮鞋面",
+        "固特异外观线",
+        "橡胶大底"
+      ],
       "min_order_quantity": 500,
-      "available_capacity_by_day": [100, 100, 100, 100, 100, 100, 0, 100, 100, 100],
+      "available_capacity_by_day": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        0,
+        100,
+        100,
+        100
+      ],
       "earliest_start_date": "2026-09-14",
-      "material_status": {"头层牛皮": "部分缺料，预计第3天到货", "橡胶大底": "充足", "深咖色染料": "充足"},
+      "material_status": {
+        "头层牛皮": "部分缺料，预计第3天到货",
+        "橡胶大底": "充足",
+        "深咖色染料": "充足"
+      },
       "on_time_rate": 0.96,
       "cooperation_status": "备选合作",
       "contact_reply_hours": 8,
-      "data_authorization": ["品类", "工艺", "可接产能", "物料满足状态", "最早开工日"]
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ]
+    },
+    {
+      "id": "FAC-D",
+      "name": "瓯江雅仕男装厂（模拟）",
+      "contactName": "周经理（演示）",
+      "phone": "0577-5555-0104",
+      "location": "温州 · 瓯海",
+      "categories": [
+        "男装",
+        "商务衬衫",
+        "西服",
+        "西裤",
+        "POLO衫",
+        "工装制服"
+      ],
+      "process_capabilities": [
+        "粘合衬定型",
+        "立体裁剪",
+        "平缝",
+        "锁眼钉扣",
+        "四线拷边",
+        "整烫定型"
+      ],
+      "equipment": [
+        "电脑平缝机 × 48",
+        "自动锁眼机 × 6",
+        "粘合机 × 3",
+        "整烫台 × 8"
+      ],
+      "dailyCapacity": 160,
+      "min_order_quantity": 100,
+      "available_capacity_by_day": [
+        160,
+        160,
+        160,
+        160,
+        160,
+        160,
+        160,
+        160,
+        160,
+        160
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "精梳棉": "充足",
+        "TR西装面料": "充足",
+        "纽扣": "充足"
+      },
+      "on_time_rate": 0.97,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 2,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "专注商务男装与团体制服，支持衬衫、西服和西裤配套生产；提供样衣确认、分码裁剪、锁眼钉扣及整烫包装。"
+    },
+    {
+      "id": "FAC-E",
+      "name": "拾锦女装智造厂（模拟）",
+      "contactName": "许经理（演示）",
+      "phone": "0577-5555-0105",
+      "location": "杭州 · 临平",
+      "categories": [
+        "女装",
+        "连衣裙",
+        "女式晚礼服",
+        "半身裙",
+        "女士衬衫",
+        "女式外套"
+      ],
+      "process_capabilities": [
+        "立体裁剪",
+        "法式包缝",
+        "卷边",
+        "隐形拉链",
+        "电脑刺绣",
+        "钉珠",
+        "褶皱定型"
+      ],
+      "equipment": [
+        "电脑平缝机 × 36",
+        "卷边机 × 8",
+        "电脑绣花机 × 4",
+        "打褶设备 × 2"
+      ],
+      "dailyCapacity": 90,
+      "min_order_quantity": 50,
+      "available_capacity_by_day": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "雪纺": "充足",
+        "醋酸缎": "部分缺料，预计第2天到货",
+        "隐形拉链": "充足"
+      },
+      "on_time_rate": 0.94,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 3,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "面向设计师女装的小单快反工厂，擅长连衣裙、礼服与精细装饰；支持样衣打版、法式包缝、钉珠与分批交付。"
+    },
+    {
+      "id": "FAC-F",
+      "name": "云棉针织服饰厂（模拟）",
+      "contactName": "沈经理（演示）",
+      "phone": "0577-5555-0106",
+      "location": "嘉兴 · 桐乡",
+      "categories": [
+        "针织衫",
+        "毛衣",
+        "T恤",
+        "卫衣",
+        "内衣",
+        "家居服",
+        "服装"
+      ],
+      "process_capabilities": [
+        "电脑横机编织",
+        "套口缝合",
+        "四针六线",
+        "无骨缝制",
+        "丝网印花",
+        "热转印",
+        "水洗预缩"
+      ],
+      "equipment": [
+        "电脑横机 × 40",
+        "四针六线机 × 16",
+        "套口机 × 18",
+        "印花设备 × 3"
+      ],
+      "dailyCapacity": 240,
+      "min_order_quantity": 100,
+      "available_capacity_by_day": [
+        240,
+        240,
+        240,
+        240,
+        240,
+        240,
+        240,
+        240,
+        240,
+        240
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "精梳棉纱": "充足",
+        "棉氨针织布": "充足",
+        "罗纹辅料": "充足"
+      },
+      "on_time_rate": 0.98,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 2,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "覆盖针织毛衫、印花T恤、卫衣和贴身家居服，具备电脑横机、套口和无骨缝制能力，适合基础款补单与系列开发。"
+    },
+    {
+      "id": "FAC-G",
+      "name": "森芽童装制造厂（模拟）",
+      "contactName": "顾经理（演示）",
+      "phone": "0577-5555-0107",
+      "location": "湖州 · 织里",
+      "categories": [
+        "童装",
+        "婴童服装",
+        "儿童卫衣",
+        "校服",
+        "童裤",
+        "儿童连衣裙"
+      ],
+      "process_capabilities": [
+        "四线拷边",
+        "无骨缝制",
+        "包边",
+        "电脑刺绣",
+        "锁眼钉扣",
+        "检针",
+        "水洗预缩"
+      ],
+      "equipment": [
+        "电脑平缝机 × 50",
+        "包缝机 × 20",
+        "检针机 × 3",
+        "自动裁床 × 2"
+      ],
+      "dailyCapacity": 200,
+      "min_order_quantity": 100,
+      "available_capacity_by_day": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "纯棉汗布": "充足",
+        "水性印花浆": "充足",
+        "安全按扣": "充足"
+      },
+      "on_time_rate": 0.98,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 2,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "专注婴童与校园服饰，覆盖亲肤棉布、圆领包边、无骨缝制和成衣检针，支持分年龄尺码配比及校服套装生产。"
+    },
+    {
+      "id": "FAC-H",
+      "name": "逐峰运动户外制衣厂（模拟）",
+      "contactName": "叶经理（演示）",
+      "phone": "0577-5555-0108",
+      "location": "宁波 · 奉化",
+      "categories": [
+        "运动服装",
+        "冲锋衣",
+        "羽绒服",
+        "瑜伽裤",
+        "速干T恤",
+        "牛仔裤",
+        "工装裤"
+      ],
+      "process_capabilities": [
+        "激光裁剪",
+        "防水压胶",
+        "四针六线",
+        "无缝贴合",
+        "热转印",
+        "绗缝充绒",
+        "牛仔水洗"
+      ],
+      "equipment": [
+        "激光裁床 × 2",
+        "压胶机 × 10",
+        "四针六线机 × 24",
+        "充绒机 × 4"
+      ],
+      "dailyCapacity": 180,
+      "min_order_quantity": 100,
+      "available_capacity_by_day": [
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "三层复合面料": "充足",
+        "弹力速干布": "充足",
+        "防水拉链": "部分缺料，预计第3天到货",
+        "牛仔布": "充足"
+      },
+      "on_time_rate": 0.93,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 4,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "覆盖运动针织与户外梭织，支持冲锋衣压胶、瑜伽裤四针六线、羽绒绗缝及牛仔水洗，适合展示多工艺匹配与备料风险。"
+    },
+    {
+      "id": "FAC-I",
+      "name": "鹿城轻履女鞋厂（模拟）",
+      "contactName": "苏经理（演示）",
+      "phone": "0577-5555-0109",
+      "location": "温州 · 鹿城",
+      "categories": [
+        "真皮女鞋",
+        "高跟鞋",
+        "乐福鞋",
+        "女靴",
+        "凉鞋"
+      ],
+      "process_capabilities": [
+        "羊皮鞋面",
+        "头层牛皮鞋面",
+        "鞋面车缝",
+        "胶粘成型",
+        "包跟",
+        "鞋楦定型",
+        "橡胶大底"
+      ],
+      "equipment": [
+        "电脑针车 × 24",
+        "前帮机 × 4",
+        "后帮机 × 4",
+        "成型流水线 × 2"
+      ],
+      "dailyCapacity": 120,
+      "min_order_quantity": 80,
+      "available_capacity_by_day": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "羊皮": "充足",
+        "鞋跟": "充足",
+        "橡胶大底": "充足"
+      },
+      "on_time_rate": 0.96,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 2,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "专注女士通勤鞋与时装鞋，涵盖乐福鞋、高跟鞋、短靴和凉鞋；擅长柔软羊皮鞋面、包跟及鞋楦舒适度调整。"
+    },
+    {
+      "id": "FAC-J",
+      "name": "飞织运动鞋制造厂（模拟）",
+      "contactName": "郑经理（演示）",
+      "phone": "0577-5555-0110",
+      "location": "泉州 · 晋江",
+      "categories": [
+        "运动鞋",
+        "跑步鞋",
+        "休闲板鞋",
+        "户外鞋",
+        "童鞋",
+        "凉拖"
+      ],
+      "process_capabilities": [
+        "飞织鞋面",
+        "热熔贴合",
+        "鞋面车缝",
+        "EVA发泡中底",
+        "橡胶大底",
+        "注塑成型",
+        "防滑耐磨测试"
+      ],
+      "equipment": [
+        "飞织鞋机 × 32",
+        "热压机 × 8",
+        "注塑机 × 4",
+        "成型流水线 × 3"
+      ],
+      "dailyCapacity": 300,
+      "min_order_quantity": 150,
+      "available_capacity_by_day": [
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300,
+        300
+      ],
+      "earliest_start_date": "2026-09-29",
+      "material_status": {
+        "飞织纱线": "充足",
+        "EVA中底": "充足",
+        "耐磨橡胶": "充足"
+      },
+      "on_time_rate": 0.97,
+      "cooperation_status": "已认证合作",
+      "contact_reply_hours": 3,
+      "data_authorization": [
+        "品类",
+        "工艺",
+        "可接产能",
+        "物料满足状态",
+        "最早开工日"
+      ],
+      "description": "覆盖轻量跑鞋、休闲板鞋、童鞋与夏季凉拖，具备飞织、热熔贴合、EVA中底和注塑能力，可展示运动鞋跨工艺协同。"
     }
   ],
   "business_rules": {
@@ -78,15 +603,33 @@
     "required_process_match": true,
     "min_quantity_rule": "单厂分配数量不得低于工厂最小起订量",
     "risk_levels": {
-      "high": ["无法在承诺交期前完成", "关键物料无明确到货时间", "关键工艺不匹配"],
-      "medium": ["历史准时率低于0.92", "物料为部分缺料但有明确到货时间", "预计交付仅比截止日期提前1天"],
-      "low": ["预计交付比截止日期提前2天及以上"]
+      "high": [
+        "无法在承诺交期前完成",
+        "关键物料无明确到货时间",
+        "关键工艺不匹配"
+      ],
+      "medium": [
+        "历史准时率低于0.92",
+        "物料为部分缺料但有明确到货时间",
+        "预计交付仅比截止日期提前1天"
+      ],
+      "low": [
+        "预计交付比截止日期提前2天及以上"
+      ]
     },
     "recommended_plan": {
       "type": "split_order",
       "allocations": [
-        {"factory_id": "FAC-A", "quantity": 500, "estimated_finish_day": 8},
-        {"factory_id": "FAC-B", "quantity": 300, "estimated_finish_day": 9}
+        {
+          "factory_id": "FAC-A",
+          "quantity": 500,
+          "estimated_finish_day": 8
+        },
+        {
+          "factory_id": "FAC-B",
+          "quantity": 300,
+          "estimated_finish_day": 9
+        }
       ],
       "reason": "A厂工艺和准时率最佳但10天可用产能不足以独立完成；B厂满足300双最小分配和交期要求。C厂虽有足够产能，但关键皮料需等待到货，存在物料不确定性。",
       "human_approval_required": true

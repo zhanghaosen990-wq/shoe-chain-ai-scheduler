@@ -71,7 +71,7 @@ Open `http://localhost:4173` in a fresh browser profile/private window and use t
 
 ## 数据与指标
 
-数据预置 2 个品牌、3 家工厂和历史合作记录。首次修改后保存到 `data/portal-state.json`，重启保留；该文件被 Git 忽略。测试可设置 `PORTAL_STATE_FILE` 指向临时数据文件，不影响演示数据。
+数据预置 6 个品牌、10 家工厂和历史合作记录。品牌账号为 `brand_01`–`brand_06`，工厂账号为 `factory_01`–`factory_10`，预置密码均为 `123456`。2026-09-28 扩充了 21 笔带完整需求的鞋服订单及 7 条示例评价。已有状态首次启动时只追加缺失的企业及新增演示记录，不覆盖旧资料或订单状态；再次启动不会重复追加。账号映射见 `data/demo_accounts.json`，新增品牌和订单见 `data/demo_showcase.json`。首次修改后保存到 `data/portal-state.json`，重启保留；该文件被 Git 忽略。测试可设置 `PORTAL_STATE_FILE` 指向临时数据文件，不影响演示数据。
 
 履约率、合格率来自明确标注的模拟历史样本；评分按已保存评价取平均。未来 10 天可用产能 = 日均产能 × 10 − 生产中订单数量（最低 0）；待接单不占用产能。此模型用于演示，不含节假日、复杂交期或真实排产约束。
 
