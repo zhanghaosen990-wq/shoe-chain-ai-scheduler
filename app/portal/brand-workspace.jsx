@@ -69,7 +69,7 @@ export function BrandWorkspace({data,account,mutate,notify,ReviewModal,Reviews,c
 
   return <div className="brand-workspace">
     <header className="brand-hero">
-      <div><div className="brand-kicker"><span>品牌工作台</span><span className="brand-kicker-divider"/><span>{account.name}</span></div><h1>让每一笔合作，<span>进展清晰。</span></h1><p>从需求到交付，掌握业务的每一步。</p></div>
+      <div><div className="brand-kicker"><span>品牌工作台</span><span className="brand-kicker-divider"/><span>{account.name}</span><small className="workspace-edition">BRAND OPERATIONS</small></div><h1>让每一笔合作，<span>进展清晰。</span></h1><p>从需求到交付，掌握业务的每一步。</p></div>
       <button className="primary brand-publish" onClick={()=>changeView('publish')}><span aria-hidden="true">＋</span> 发布生产需求</button>
     </header>
     <div className="brand-nav-row"><nav ref={nav} className="brand-nav" aria-label="品牌工作台导航"><span className="brand-nav-indicator" style={indicator} aria-hidden="true"/>{tabs.map(([id,label])=><button key={id} aria-current={view===id?'page':undefined} onClick={()=>changeView(id)}>{label}</button>)}<button className="brand-publish-tab" aria-current={view==='publish'?'page':undefined} onClick={()=>changeView('publish')}>BOM 与 Agent 排期</button></nav><Link className="brand-profile-link" to={`/profile/${account.id}`}>品牌主页 <span aria-hidden="true">↗</span></Link></div>

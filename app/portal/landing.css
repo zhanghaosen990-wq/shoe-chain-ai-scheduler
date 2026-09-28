@@ -53,6 +53,31 @@ html {scroll-behavior:smooth}
 .landing-why.is-enhanced .why-card.is-visible:hover {transform:translateY(-4px)}
 .app-home .network {max-width:1288px;margin:auto;padding:32px 24px 0}
 .page-heading {animation:surface-enter .65s cubic-bezier(.2,.65,.3,1) both}
+.landing-eyebrow,.landing-process {display:none}
+.landing-visual {display:contents}
+/* Desktop opening: an editorial message beside the existing manufacturing visual. */
+@media(min-width:1100px) and (min-height:601px) {
+ .landing-hero {align-items:flex-start;text-align:left;padding:68px max(64px,calc((100vw - 1240px)/2)) 136px;min-height:calc(100svh - 64px)}
+ .landing-hero::before {background:radial-gradient(ellipse at 76% 45%,rgba(96,165,250,.19),transparent 48%),linear-gradient(115deg,var(--paper) 40%,var(--surface-raised))}
+ .landing-eyebrow {display:flex;align-items:center;gap:18px;position:relative;z-index:1;margin:0 0 28px;font-size:10px;font-weight:600;letter-spacing:2px;color:var(--accent)}
+ .landing-eyebrow span {color:var(--muted);font-size:11px;font-weight:400;letter-spacing:.5px;border-left:1px solid var(--input-line);padding-left:18px}
+ .particle-title {width:54%;font-size:clamp(58px,5.1vw,78px);line-height:1.2;letter-spacing:-3px;margin-bottom:26px}
+ .landing-details {width:48%;max-width:590px}
+ .landing-brand {justify-content:flex-start;margin-bottom:12px}
+ .landing-description {font-size:15px;line-height:1.9;margin-bottom:28px}
+ .hero-entries {justify-content:flex-start;gap:14px}
+ .hero-entries button {min-width:190px;min-height:48px;border-radius:8px;font-size:14px}
+ .hero-entries small {padding-left:2px}
+ .hero-entries .secondary {background:var(--surface)}
+ .landing-visual {display:block;position:absolute;right:max(64px,calc((100vw - 1240px)/2));top:46%;transform:translateY(-50%);width:min(42vw,560px);height:340px;border:1px solid var(--accent-line);border-radius:22px;background:linear-gradient(var(--accent-soft) 1px,transparent 1px),linear-gradient(90deg,var(--accent-soft) 1px,transparent 1px);background-size:40px 40px;box-shadow:0 24px 64px rgba(30,41,59,.06)}
+ .landing-particle-stage {position:absolute;left:20px;top:48px;width:calc(100% - 40px);height:230px;margin:0}
+ .landing-visual::before {content:'DESIGN × MANUFACTURING';position:absolute;top:22px;left:24px;color:var(--muted);font-size:10px;letter-spacing:2px}
+ .landing-visual::after {content:'从设计轮廓，到生产网络';position:absolute;bottom:22px;left:24px;right:24px;border-top:1px solid var(--accent-line);padding-top:16px;color:var(--accent);font-size:12px;letter-spacing:1px}
+ .landing-process {display:flex;align-items:center;gap:30px;position:absolute;bottom:78px;left:max(64px,calc((100vw - 1240px)/2));right:max(64px,calc((100vw - 1240px)/2));border-top:1px solid var(--input-line);padding-top:22px;color:var(--accent);font-size:10px;letter-spacing:1px}
+ .landing-process strong {font-size:12px;font-weight:500;color:var(--ink);margin-left:12px;letter-spacing:.4px}
+ .landing-process i {font-style:normal;color:var(--muted)}
+ .explore-link {left:auto;right:max(64px,calc((100vw - 1240px)/2));bottom:28px;transform:none}
+}
 @keyframes hero-text-enter {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes explore-drift {50%{transform:translateY(4px)}}
 @keyframes scan-line {50%{transform:translateY(4px);opacity:1}}

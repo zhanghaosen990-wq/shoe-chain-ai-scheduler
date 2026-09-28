@@ -109,6 +109,25 @@
 .process-search .text-button {flex-shrink:0;font-size:12px;white-space:nowrap}
 .process-tag,.process-options button {font-size:13px}
 .process-field>small {font-size:12px}
+@media(min-width:1100px) {
+ .factory-overview {padding:16px 24px 12px;margin-bottom:16px;background:linear-gradient(120deg,var(--surface),var(--paper));border-color:var(--input-line)}
+ .factory-overview .factory-view-heading {margin-bottom:14px}
+ .factory-overview .metrics {gap:0;margin:12px 0 16px}
+ .factory-overview .metric {background:none;border:0;border-left:1px solid var(--input-line);border-radius:0;padding:8px 24px}
+ .factory-overview .metric:first-child {border-left:0;padding-left:0}
+ .factory-overview .metric strong {font-size:36px;font-weight:600;margin:6px 0 4px}
+ .factory-overview .metric:last-child {padding:12px 22px;margin-top:-4px;margin-bottom:-4px;border:1px solid var(--accent);border-radius:12px;background:linear-gradient(110deg,var(--accent),#1d4ed8);box-shadow:0 8px 20px rgba(37,99,235,.15)}
+ .factory-overview .metric:last-child strong {color:#fff}
+ .factory-overview .metric:last-child>span,.factory-overview .metric:last-child small {color:#dbeafe}
+ .factory-metric-help {padding-top:8px;font-size:11px}
+ .factory-recent {padding:18px 20px}
+}
+@media(min-width:1100px) and (max-height:800px) {
+ .factory-overview .metrics {margin-bottom:12px}
+ .factory-overview .metric {padding-top:4px;padding-bottom:4px}
+ .factory-overview .metric strong {font-size:32px}
+ .factory-overview .metric:last-child {padding-top:8px;padding-bottom:8px}
+}
 @media(max-width:1100px) {
  .factory-hero-actions {align-items:flex-end;flex-direction:column;gap:8px}
  .factory-overview .metric {padding:12px 14px}
