@@ -49,6 +49,26 @@ npm start
 
 推荐流程：登录 brand_01 → 在完成订单中评价工厂 → 编辑企业资料 → 退出并登录 factory_01 查看评价；也可注册新品牌或工厂，验证空白主页、资料与产能保存。
 
+### Competition walkthrough (Phase 5)
+
+Use `brand_01` and `factory_01`, both with password `123456`.
+
+1. Log in as Brand. Open the recent **城市通勤皮鞋 / DEMO-002** order, or find it in **订单管理**. Its production status, 300-pair requirements, assigned factory and demonstration contact details are available in the drawer.
+2. Log out and log in as Factory. Open the same order from **近期订单** or **订单与排期**. Review the requirements and select **已完成订单**. The order remains under **全部** and **已完成**, and its reserved capacity is released.
+3. Return to Brand. The order now shows **已完成**, retains factory contact details and offers fulfillment feedback.
+4. To demonstrate acceptance too, use Brand's **发布生产需求**, choose **商务男鞋** in **演示样例**, then click **一键填入演示数据**. Set quantity to 300, run **智能推荐工厂**, open **选择工厂并分配数量** and select **瓯越精工鞋业**. Review the allocation and risk acknowledgment, then submit. Factory receives the pending-order notification; review and accept the order, then complete it. Brand sees each real state change. Manual entry and rules-based recommendations work without a model key.
+
+`seed()` in `app/portal-store.js` is the canonical portal order/history source; factory defaults, including fictional demo contacts, come from `data/demo_data.json`. Only the representative production order carries a full requirements snapshot; older historical orders intentionally retain the missing-details message. `data/portal-state.json` is ignored runtime persistence, not seed data. Existing saved orders and edited/cleared contacts are never overwritten by these defaults.
+
+For a repeatable competition session without changing existing data, start with a **new, unused** state-file path (its parent directory must exist). For example, in PowerShell:
+
+```powershell
+$env:PORTAL_STATE_FILE = Join-Path $env:TEMP ('shoe-competition-' + [guid]::NewGuid() + '.json')
+npm start
+```
+
+Open `http://localhost:4173` in a fresh browser profile/private window and use the accounts above. Stop any existing server on that port first. Keep the chosen state-file path if you want to resume that session; a new path starts the seed again. Restarting with an existing file preserves completed orders and will not recreate the production stage. No runtime reset or deletion is needed.
+
 ## 数据与指标
 
 数据预置 2 个品牌、3 家工厂和历史合作记录。首次修改后保存到 `data/portal-state.json`，重启保留；该文件被 Git 忽略。测试可设置 `PORTAL_STATE_FILE` 指向临时数据文件，不影响演示数据。

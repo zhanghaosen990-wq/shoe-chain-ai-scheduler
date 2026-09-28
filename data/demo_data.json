@@ -26,6 +26,8 @@
     {
       "id": "FAC-A",
       "name": "瓯越精工鞋业（模拟）",
+      "contactName": "陈经理（演示）",
+      "phone": "0577-5555-0101",
       "location": "永嘉县",
       "categories": ["商务男鞋", "正装皮鞋"],
       "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],
@@ -41,6 +43,8 @@
     {
       "id": "FAC-B",
       "name": "楠江鞋业制造（模拟）",
+      "contactName": "林经理（演示）",
+      "phone": "0577-5555-0102",
       "location": "永嘉县",
       "categories": ["商务男鞋", "休闲男鞋"],
       "process_capabilities": ["头层牛皮鞋面", "固特异外观线", "橡胶大底"],

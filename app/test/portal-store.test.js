@@ -5,6 +5,22 @@ const os = require('node:os');
 const path = require('node:path');
 const { createStore } = require('../portal-store');
 function setup(t) { const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'shoe-portal-')); t.after(() => fs.rmSync(dir, { recursive: true, force: true })); const file = path.join(dir, 'state.json'); return { store: createStore(file), file }; }
+test('default competition order exposes valid requirements, factory contacts and owned completion without replacing persisted data', t => {
+ const {store,file}=setup(t), initial=store.snapshot();
+ const order=initial.orders.find(o=>o.id==='DEMO-002'), factory=initial.factories.find(f=>f.id===order.factoryId);
+ assert.equal(order.brandId,'BRAND-A');assert.equal(factory.id,'FAC-A');assert.equal(order.status,'production');
+ assert.ok(order.quantity>=factory.min_order_quantity);
+ assert.equal(order.quantity,order.demand.planning_context.quantity);
+ assert.deepEqual(require('../order-contract').normalizeDemand(order.demand),order.demand);
+ assert.ok(factory.contactName);assert.ok(factory.phone);
+ assert.equal(factory.analytics.booked,order.quantity);
+ store.transition('FAC-A',order.id,'completed');
+ store.syncProfile({...factory,contactName:'',phone:''});
+ const restored=createStore(file).snapshot();
+ assert.equal(restored.orders.find(o=>o.id===order.id).status,'completed');
+ assert.equal(restored.factories.find(f=>f.id==='FAC-A').contactName,'');
+ assert.equal(restored.factories.find(f=>f.id==='FAC-A').phone,'');
+});
 test('completed-order review persists and updates only the rated factory; rejects duplicates and other accounts', t => {
  const { store, file } = setup(t);
  assert.throws(() => store.review('BRAND-B', {orderId:'DEMO-001',rating:3,comment:'评价'}));
@@ -19,11 +35,11 @@ test('factory acceptance reserves capacity and brand completion releases it', t 
  const { store } = setup(t);
  const next = store.createOrders('BRAND-A',{requestId:'capacity-test',title:'试单',demand:{...demand,planning_context:{...demand.planning_context,quantity:100}},allocations:[{factory_id:'FAC-A',quantity:100}]});
  const order = next.orders[0];
- assert.equal(next.factories[0].analytics.available,600);
+ assert.equal(next.factories[0].analytics.available,300);
  assert.throws(() => store.transition('FAC-B',order.id,'production'));
- assert.equal(store.transition('FAC-A',order.id,'production',{confirmRisks:true}).factories[0].analytics.available,500);
+ assert.equal(store.transition('FAC-A',order.id,'production',{confirmRisks:true}).factories[0].analytics.available,200);
  assert.throws(() => store.transition('BRAND-B',order.id,'completed'));
- assert.equal(store.transition('BRAND-A',order.id,'completed').factories[0].analytics.available,600);
+ assert.equal(store.transition('BRAND-A',order.id,'completed').factories[0].analytics.available,300);
 });
 
 test('only the owning factory or brand can complete production; stale and illegal transitions do not write', t => {
@@ -40,7 +56,7 @@ test('only the owning factory or brand can complete production; stale and illega
  assert.equal(unchanged(),before);
  const next=store.transition('FAC-A',created.id,'completed');
  assert.equal(next.orders.find(o=>o.id===created.id).status,'completed');
- assert.equal(next.factories.find(f=>f.id==='FAC-A').analytics.booked,0);
+ assert.equal(next.factories.find(f=>f.id==='FAC-A').analytics.booked,300);
  assert.equal(createStore(file).snapshot().orders.find(o=>o.id===created.id).status,'completed');
  before=unchanged();
  for(const actor of ['FAC-A','BRAND-A'])assert.throws(()=>store.transition(actor,created.id,'completed'));
@@ -50,7 +66,7 @@ test('only the owning factory or brand can complete production; stale and illega
  store.transition('FAC-B',rejected.id,'rejected',{reason:'排期已满'});
  before=unchanged();assert.throws(()=>store.transition('FAC-B',rejected.id,'completed'));assert.equal(unchanged(),before);
  store.transition('BRAND-A','DEMO-002','completed');
- before=unchanged();assert.throws(()=>store.transition('FAC-B','DEMO-002','completed'));assert.equal(unchanged(),before);
+ before=unchanged();assert.throws(()=>store.transition('FAC-A','DEMO-002','completed'));assert.equal(unchanged(),before);
 });
 
 test('automatic factory profile sync preserves server contacts; explicit edits can clear them',t=>{
@@ -70,7 +86,7 @@ test('factory capabilities are isolated and survive restart', t => {
  const input = {...before.factories[0],dailyCapacity:123,min_order_quantity:50,categories:['女式晚礼服']};
  assert.throws(() => store.updateFactory('BRAND-A',input));
  const next = store.updateFactory('FAC-A',input);
- assert.equal(next.factories[0].analytics.available,1230);
+ assert.equal(next.factories[0].analytics.available,930);
  assert.deepEqual(next.factories[1],before.factories[1]);
  assert.equal(createStore(file).snapshot().factories[0].dailyCapacity,123);
  assert.throws(() => store.updateFactory('FAC-A',{...input, dailyCapacity:-1}));
