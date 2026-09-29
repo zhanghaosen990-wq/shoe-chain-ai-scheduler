@@ -1,0 +1,45 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const {spawn}=require('node:child_process');
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+(async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'shoe-bom-analysis-'));
+ const server=spawn(process.execPath,[path.join(__dirname,'server.js')],{env:{...process.env,PORT:'4177',PORTAL_STATE_FILE:path.join(dir,'state.json'),AI_PROVIDER:'openai',OPENAI_API_KEY:''},stdio:['ignore','pipe','pipe']});let browser;
+ try{
+  await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',c=>reject(Error('server '+c)));});
+  browser=await chromium.launch({channel:'chrome',headless:true});const page=await browser.newPage();page.setDefaultTimeout(15000);
+  let requests=0;page.on('request',r=>{if(r.url().endsWith('/api/agent'))requests++;});
+  await page.goto('http://localhost:4177/workspace');
+  await page.locator('#fill-demo').click();await page.locator('#bom-style-name').filter({visible:true}).waitFor();
+  await page.waitForFunction(()=>document.querySelector('#bom-style-name').value.includes('商务'));
+  assert.equal(requests,0);
+  await page.locator('#run-agent').click();await page.locator('#select-factories').waitFor();
+  assert.equal(requests,1);assert.equal(await page.locator('.metric-card').count(),4);
+  await page.locator('#bom-file-input').setInputFiles({name:'new-bom.png',mimeType:'image/png',buffer:Buffer.from('fixture')});
+  assert.equal(await page.locator('.metric-card').count(),0,'a newly uploaded BOM must clear the previous analysis');
+  assert.equal(await page.locator('#select-factories').count(),0);
+  assert.equal(await page.locator('#agent-steps .done').count(),0);
+  assert.equal(requests,1);
+  await page.route('**/api/bom/parse',r=>r.fulfill({json:{bom_data:{style_name:'新款商务鞋',sku_code:'NEW-001',craftsmanship:'裁断；针车；成型；胶粘'}}}));
+  await page.locator('#start-bom-recognition').click();await page.waitForFunction(()=>document.querySelector('#bom-status').textContent==='识别完成');
+  assert.equal(requests,1,'BOM recognition must not trigger factory analysis');
+  assert.equal(await page.locator('.metric-card').count(),0);
+  await page.locator('#bom-sku-code').press('Enter');
+  assert.equal(requests,1,'Enter in a BOM field must not implicitly trigger the agent');
+  await page.locator('#run-agent').click();await page.locator('#select-factories').waitFor();assert.equal(requests,2);
+  await page.locator('#fill-demo').click();await page.waitForFunction(()=>document.querySelector('#bom-style-name').value.includes('都市'));
+  assert.equal(await page.locator('.metric-card').count(),0,'demo refill must clear old results too');assert.equal(requests,2);
+  await page.locator('#run-agent').click();await page.locator('#select-factories').waitFor();
+  await page.locator('#remove-bom-file').click();
+  assert.equal(await page.locator('.metric-card').count(),0,'removing demo BOM clears analysis');
+  assert.equal(await page.locator('#agent-steps .done').count(),0);
+  await page.locator('#fill-demo').click();await page.locator('#remove-bom-file').waitFor();
+  await page.locator('#run-agent').click();await page.locator('#agent-steps .active').waitFor();
+  await page.locator('#remove-bom-file').click();
+  await page.waitForTimeout(2200);
+  assert.equal(await page.locator('.metric-card').count(),0,'late analysis animation cannot restore deleted BOM results');
+  assert.equal(await page.locator('#agent-steps .done').count(),0);
+  assert.equal(await page.locator('#run-state').innerText(),'待分析');
+  console.log('PASS: upload, recognition, edits, demo refill/removal and mid-analysis removal clear stale results; explicit analysis only.');
+ }finally{if(browser)await browser.close();server.kill();fs.rmSync(dir,{recursive:true,force:true});}
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -55,7 +55,7 @@
     const bom = normalizeBomData(payload.bom_data);
     const planning = payload.planning_context || {};
     const requirements = payload.production_requirements || {};
-    const processes = bom.craftsmanship.split(/[、,，；;。]/).map((item) => item.trim()).filter(Boolean);
+    const processes = bom.craftsmanship.split(/[、,，；;。\r\n]+/).map((item) => item.trim()).filter(Boolean);
     return {
       style_code: bom.sku_code || bom.style_name,
       category: planning.category || '商务男鞋',

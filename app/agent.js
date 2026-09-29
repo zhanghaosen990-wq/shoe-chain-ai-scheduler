@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { recommendFactories } = require('./recommendations');
+const { recommendFactories, available } = require('./recommendations');
 const { buildDashboard } = require('./presentation');
 
 const root = path.resolve(__dirname, '..');
@@ -15,7 +15,7 @@ const toolDefinitions = [
 ];
 
 function capacityInDeadline(factory, deadline) {
-  return factory.available_capacity_by_day.slice(0, deadline).reduce((total, day) => total + day, 0);
+  return available(factory, deadline);
 }
 function matchesProcesses(factory, processes) {
   return processes.every((item) => factory.process_capabilities.includes(item));
@@ -23,13 +23,20 @@ function matchesProcesses(factory, processes) {
 function factoryByIds(ids) {
   return data.factories.filter((factory) => ids.includes(factory.id));
 }
-function evaluatePlan(order, factories = data.factories) {
-  const capabilityMatched = factories.filter((factory) => factory.categories.includes(order.category) && matchesProcesses(factory, order.required_processes));
+function evaluatePlan(order, factories = data.factories, options = {}) {
+  const candidates=options.candidates;
+  const candidateIds=candidates?.filter(c=>c.category_match||(c.category_related&&(c.confirmed_processes.length||c.related_processes?.length))||c.semantic_note).map(c=>c.factory_id);
+  const capabilityMatched = factories.filter((factory) => candidateIds ? candidateIds.includes(factory.id) : factory.categories.includes(order.category) && matchesProcesses(factory, order.required_processes));
   const viable = capabilityMatched.filter((factory) => order.quantity >= factory.min_order_quantity && capacityInDeadline(factory, order.deadline_days) >= factory.min_order_quantity);
-  const safe = viable.filter((factory) => !Object.values(factory.material_status).some((value) => value.includes('缺料'))).sort((a, b) => b.on_time_rate - a.on_time_rate);
+  const safe = viable.filter((factory) => !Object.values(factory.material_status).some((value) => value.includes('缺料'))).sort((a, b) => candidateIds ? candidateIds.indexOf(a.id)-candidateIds.indexOf(b.id) : b.on_time_rate - a.on_time_rate);
   if (!safe.length) return { status: 'human_review', reason: '没有物料状态明确、且满足品类、工艺与最小起订量要求的工厂。', allocations: [] };
+  function result(allocations,explanation) {
+    const requires_confirmation=allocations.some(a=>{const c=candidates?.find(c=>c.factory_id===a.factory_id);return c&&(!c.category_match||c.unconfirmed_processes.length||c.semantic_note);});
+    return {status:'recommended',allocations,risk:requires_confirmation||allocations.some(a=>safe.find(f=>f.id===a.factory_id).on_time_rate<.92)?'medium':'low',...(requires_confirmation?{requires_confirmation:true}:{}),...(explanation?{explanation}:{})};
+  }
+  const preferSplit=order.splittable&&options.preferSplit;
   const single = safe.find(factory => capacityInDeadline(factory, order.deadline_days) >= order.quantity);
-  if (single) return { status: 'recommended', allocations: [{ factory_id: single.id, quantity: order.quantity }], risk: single.on_time_rate < .92 ? 'medium' : 'low' };
+  if (single&&!preferSplit) return result([{ factory_id: single.id, quantity: order.quantity }]);
   if (!order.splittable) return { status: 'human_review', reason: '订单不允许拆单，当前没有单一低风险工厂能在交期内完成。', allocations: [] };
   const capacities = safe.map(factory => capacityInDeadline(factory, order.deadline_days));
   const remainingCapacity = Array(safe.length + 1).fill(0);
@@ -41,7 +48,7 @@ function evaluatePlan(order, factories = data.factories) {
   function choose(index, minimum, maximum, selected) {
     if (++visits > 20000 || index > 500) { searchLimited = true; return null; }
     if (minimum > order.quantity || maximum + remainingCapacity[index] < order.quantity) return null;
-    if (maximum >= order.quantity) return selected;
+    if (maximum >= order.quantity && selected.length >= (preferSplit?2:1)) return selected;
     if (index === safe.length || selected.length === 30) return null;
     const key = `${index}:${minimum}:${maximum}:${selected.length}`;
     if (failed.has(key)) return null;
@@ -51,6 +58,7 @@ function evaluatePlan(order, factories = data.factories) {
     return result;
   }
   const chosen = choose(0, 0, 0, []);
+  if (!chosen&&single) return result([{factory_id:single.id,quantity:order.quantity}],searchLimited?'组合较多，先提供可用单厂方案；可手动选择多厂。':'当前起订量和产能条件不适合拆单，已提供单厂方案。');
   if (!chosen) return { status: 'human_review', reason: searchLimited ? '工厂组合较多，自动排产尚未找到完整方案，请手动选厂核对数量与排期。' : '现有工厂组合无法同时满足交期和最小起订量。', allocations: [] };
   let remainder = order.quantity - chosen.reduce((sum, index) => sum + safe[index].min_order_quantity, 0);
   const allocations = chosen.map(index => {
@@ -59,7 +67,7 @@ function evaluatePlan(order, factories = data.factories) {
     remainder -= extra;
     return { factory_id: factory.id, quantity: factory.min_order_quantity + extra };
   });
-  return { status: 'recommended', allocations, risk: chosen.some(index => safe[index].on_time_rate < .92) ? 'medium' : 'low' };
+  return result(allocations);
 }
 
 function runTool(name, args) {
@@ -85,10 +93,10 @@ async function runAgent(order, config) {
   const factories=JSON.parse(JSON.stringify(data.factories));
   const recommendation=await recommendFactories(order,factories,config);
   // Automatic planning remains an optional conservative reference, not a submission gate.
-  const plan=evaluatePlan(order,factories);
+  const plan=evaluatePlan(order,factories,{candidates:recommendation.candidates,preferSplit:true});
   const dashboard=buildDashboard(order,plan,factories);
   dashboard.selectionMode=true;dashboard.status=dashboard.canApprove?'自动分配待确认':'待品牌选择工厂';dashboard.tone='warning';
-  dashboard.risks=[...(dashboard.canApprove?[]:[plan.reason || dashboard.risks[0]]),recommendation.notice,'推荐不代表工厂已接单，报价、工艺和排期由工厂确认。'];
+  dashboard.risks=[...(dashboard.canApprove?[]:[plan.reason || dashboard.risks[0]]),...(plan.explanation?[plan.explanation]:[]),...(plan.requires_confirmation?['按相关品类和相近工艺生成拆分建议，未登记或表述不同的工艺仍需工厂确认。']:[]),recommendation.notice,'推荐不代表工厂已接单，报价、工艺和排期由工厂确认。'];
   dashboard.metrics[0]={label:'工厂报价',value:'待工厂确认',note:'不影响提交合作需求'};
   dashboard.metrics[3]={label:'物料适配',value:'待工厂核验',note:'本单 BOM 物料适配与备料需工厂确认'};
   return { ...recommendation, plan, dashboard, factories,
