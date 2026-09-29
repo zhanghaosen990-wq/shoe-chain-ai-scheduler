@@ -297,7 +297,7 @@ $('#order-form').addEventListener('submit', async (event) => {
     const response = await fetch('/api/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const aiResult = await response.json(); if (!response.ok) throw new Error(aiResult.error || '真实 Agent 暂时无法响应。');
     if (revision !== demandRevision) { showChangedDemand(); return; }
-    currentProposal = { requestId, demand: payload, candidates: aiResult.candidates || [], notice: aiResult.notice };
+    currentProposal = { requestId, demand: payload, candidates: aiResult.candidates || [], notice: aiResult.notice, plan: aiResult.dashboard?.canApprove ? aiResult.plan : { status: 'human_review', reason: aiResult.plan?.reason || '订单条件需要核实，请手动选择工厂。', allocations: [] } };
     if (aiResult.factories) { data.factories = aiResult.factories; renderFactories(); }
     const logs = aiResult.logs || [];
     await executeStep(0, '已解析');

@@ -28,17 +28,38 @@ function evaluatePlan(order, factories = data.factories) {
   const viable = capabilityMatched.filter((factory) => order.quantity >= factory.min_order_quantity && capacityInDeadline(factory, order.deadline_days) >= factory.min_order_quantity);
   const safe = viable.filter((factory) => !Object.values(factory.material_status).some((value) => value.includes('缺料'))).sort((a, b) => b.on_time_rate - a.on_time_rate);
   if (!safe.length) return { status: 'human_review', reason: '没有物料状态明确、且满足品类、工艺与最小起订量要求的工厂。', allocations: [] };
-  const first = safe[0];
-  const firstCapacity = capacityInDeadline(first, order.deadline_days);
-  if (firstCapacity >= order.quantity) return { status: 'recommended', allocations: [{ factory_id: first.id, quantity: order.quantity }], risk: 'low' };
+  const single = safe.find(factory => capacityInDeadline(factory, order.deadline_days) >= order.quantity);
+  if (single) return { status: 'recommended', allocations: [{ factory_id: single.id, quantity: order.quantity }], risk: single.on_time_rate < .92 ? 'medium' : 'low' };
   if (!order.splittable) return { status: 'human_review', reason: '订单不允许拆单，当前没有单一低风险工厂能在交期内完成。', allocations: [] };
-  const second = safe.find((factory) => factory.id !== first.id && capacityInDeadline(factory, order.deadline_days) >= factory.min_order_quantity);
-  if (!second) return { status: 'human_review', reason: '没有第二家满足物料与产能要求的工厂可用于拆单。', allocations: [] };
-  const secondQuantity = Math.max(second.min_order_quantity, Math.min(capacityInDeadline(second, order.deadline_days), order.quantity - firstCapacity));
-  const firstQuantity = order.quantity - secondQuantity;
-  if (firstQuantity < first.min_order_quantity || firstQuantity > firstCapacity || secondQuantity > capacityInDeadline(second, order.deadline_days)) return { status: 'human_review', reason: '现有工厂组合无法同时满足交期和最小起订量。', allocations: [] };
-  const risk = second.on_time_rate < 0.92 ? 'medium' : 'low';
-  return { status: 'recommended', allocations: [{ factory_id: first.id, quantity: firstQuantity }, { factory_id: second.id, quantity: secondQuantity }], risk };
+  const capacities = safe.map(factory => capacityInDeadline(factory, order.deadline_days));
+  const remainingCapacity = Array(safe.length + 1).fill(0);
+  for (let i = safe.length - 1; i >= 0; i--) remainingCapacity[i] = remainingCapacity[i + 1] + capacities[i];
+  // A chosen group can produce every integer quantity between its total MOQ and capacity.
+  // Search in reliability order, backtracking when a preferred factory prevents a fit.
+  const failed = new Set();
+  let visits = 0, searchLimited = false;
+  function choose(index, minimum, maximum, selected) {
+    if (++visits > 20000 || index > 500) { searchLimited = true; return null; }
+    if (minimum > order.quantity || maximum + remainingCapacity[index] < order.quantity) return null;
+    if (maximum >= order.quantity) return selected;
+    if (index === safe.length || selected.length === 30) return null;
+    const key = `${index}:${minimum}:${maximum}:${selected.length}`;
+    if (failed.has(key)) return null;
+    const result = choose(index + 1, minimum + safe[index].min_order_quantity, maximum + capacities[index], [...selected, index])
+      || (!searchLimited && choose(index + 1, minimum, maximum, selected));
+    if (!result) failed.add(key);
+    return result;
+  }
+  const chosen = choose(0, 0, 0, []);
+  if (!chosen) return { status: 'human_review', reason: searchLimited ? '工厂组合较多，自动排产尚未找到完整方案，请手动选厂核对数量与排期。' : '现有工厂组合无法同时满足交期和最小起订量。', allocations: [] };
+  let remainder = order.quantity - chosen.reduce((sum, index) => sum + safe[index].min_order_quantity, 0);
+  const allocations = chosen.map(index => {
+    const factory = safe[index];
+    const extra = Math.min(remainder, capacities[index] - factory.min_order_quantity);
+    remainder -= extra;
+    return { factory_id: factory.id, quantity: factory.min_order_quantity + extra };
+  });
+  return { status: 'recommended', allocations, risk: chosen.some(index => safe[index].on_time_rate < .92) ? 'medium' : 'low' };
 }
 
 function runTool(name, args) {
@@ -66,13 +87,13 @@ async function runAgent(order, config) {
   // Automatic planning remains an optional conservative reference, not a submission gate.
   const plan=evaluatePlan(order,factories);
   const dashboard=buildDashboard(order,plan,factories);
-  dashboard.selectionMode=true;dashboard.status='待品牌选择工厂';dashboard.tone='warning';
-  dashboard.risks=[recommendation.notice,'推荐不代表工厂已接单，报价、工艺和排期由工厂确认。'];
+  dashboard.selectionMode=true;dashboard.status=dashboard.canApprove?'自动分配待确认':'待品牌选择工厂';dashboard.tone='warning';
+  dashboard.risks=[...(dashboard.canApprove?[]:[plan.reason || dashboard.risks[0]]),recommendation.notice,'推荐不代表工厂已接单，报价、工艺和排期由工厂确认。'];
   dashboard.metrics[0]={label:'工厂报价',value:'待工厂确认',note:'不影响提交合作需求'};
   dashboard.metrics[3]={label:'物料适配',value:'待工厂核验',note:'本单 BOM 物料适配与备料需工厂确认'};
   return { ...recommendation, plan, dashboard, factories,
     answer:recommendation.candidates.map(c=>`${c.name}：${c.reasons.join('；')}。${c.semantic_note||''} 待确认工艺：${c.unconfirmed_processes.join('、')||'无额外词条'}。${c.risks.join('；')}`).join('\n\n')||'暂无明确匹配候选，可查看全部工厂并手动选择，提交后由工厂判断是否承接。',
-    logs:[{tool:'query_factory_capabilities',summary:`找到 ${recommendation.candidates.length} 家相关候选工厂，具体工艺待确认`},{tool:'query_capacity_schedule',summary:`读取 ${factories.length} 家工厂最新产能，风险不阻止提交`},{tool:'query_material_status',summary:'物料记录仅供参考，本单适配待工厂确认'},{tool:'evaluate_dispatch_plan',summary:'推荐已完成，请品牌选厂并分配数量'}]
+    logs:[{tool:'query_factory_capabilities',summary:`找到 ${recommendation.candidates.length} 家相关候选工厂，具体工艺待确认`},{tool:'query_capacity_schedule',summary:`读取 ${factories.length} 家工厂最新产能，风险不阻止提交`},{tool:'query_material_status',summary:'物料记录仅供参考，本单适配待工厂确认'},{tool:'evaluate_dispatch_plan',summary:dashboard.canApprove?`已自动分配至 ${plan.allocations.length} 家工厂，请核对方案`:'暂无自动分配方案，可手动选厂'}]
   };
 }
 async function generateInquiryMessages(order, allocations, config) {
