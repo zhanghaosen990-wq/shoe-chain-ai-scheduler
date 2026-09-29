@@ -1,6 +1,7 @@
 let data;
 let currentProposal = null;
 let demandRevision = 0;
+let agentRequestController = null;
 let aiConfigured = false;
 let sampleImages = [];
 let bomFile = null;
@@ -41,7 +42,7 @@ function renderFactories() {
   }).join('');
 }
 function resetSteps() { document.querySelectorAll('#agent-steps li').forEach((item) => { item.className = ''; item.querySelector('em').textContent = '待执行'; }); }
-async function executeStep(index, output) { const step = document.querySelectorAll('#agent-steps li')[index]; step.className = 'active'; step.querySelector('em').textContent = '执行中'; await wait(380); step.className = 'done'; step.querySelector('em').textContent = output; }
+async function executeStep(index, output, revision) { if (revision !== demandRevision) throw new Error('stale'); const step = document.querySelectorAll('#agent-steps li')[index]; step.className = 'active'; step.querySelector('em').textContent = '执行中'; await wait(380); if (revision !== demandRevision) throw new Error('stale'); step.className = 'done'; step.querySelector('em').textContent = output; }
 function finishDay(factory, quantity) { let total = 0; for (let day = 0; day < factory.available_capacity_by_day.length; day += 1) { total += factory.available_capacity_by_day[day]; if (total >= quantity) return day + 1; } return '超期'; }
 
 function renderResult(plan, answer, order, dashboard) {
@@ -289,27 +290,28 @@ $('#order-form').addEventListener('submit', async (event) => {
   if (sampleImages.some((image) => image.status === 'error')) return showToast('有样品图片上传失败，请删除后重新上传。');
   const payload = buildSubmitPayload({ sampleImages: sampleImages.filter((image) => image.status === 'uploaded').map((image) => image.url), bomData, productionRequirements: { cooperation_mode: $('#cooperation-mode').value, special_notes: $('#special-notes').value }, planningContext });
   const order = toAgentOrder(payload);
+  const controller = new AbortController(); agentRequestController = controller;
   const revision = demandRevision, requestId = window.ShoeUI.randomId();
   currentProposal = { requestId, demand: payload, candidates: [] };
   window.workspaceUI?.setExecution('running');
   resetSteps(); $('#result-card').className = 'card result-card empty'; $('#result-card').innerHTML = '<div class="result-empty"><span>◌</span><h2>真实 Agent 正在调用业务工具</h2><p>读取最新工厂能力，推荐后由你选厂和分配数量。</p></div><div class="skeleton-block" aria-hidden="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>'; $('#run-state').className = 'pill running'; $('#run-state').textContent = '执行中'; $('#run-agent').disabled = true; $('#run-agent').querySelector('span').textContent = '…';
   try {
-    const response = await fetch('/api/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const response = await fetch('/api/agent', { signal: controller.signal, method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const aiResult = await response.json(); if (!response.ok) throw new Error(aiResult.error || '真实 Agent 暂时无法响应。');
-    if (revision !== demandRevision) { showChangedDemand(); return; }
+    if (revision !== demandRevision) return;
     currentProposal = { requestId, demand: payload, candidates: aiResult.candidates || [], notice: aiResult.notice, plan: aiResult.dashboard?.canApprove ? aiResult.plan : { status: 'human_review', reason: aiResult.plan?.reason || '订单条件需要核实，请手动选择工厂。', allocations: [] } };
     if (aiResult.factories) { data.factories = aiResult.factories; renderFactories(); }
     const logs = aiResult.logs || [];
-    await executeStep(0, '已解析');
-    await executeStep(1, logs.find((item) => item.tool === 'query_factory_capabilities')?.summary || '已完成');
-    await executeStep(2, logs.find((item) => item.tool === 'query_capacity_schedule')?.summary || '已完成');
-    await executeStep(3, logs.find((item) => item.tool === 'query_material_status')?.summary || '已完成');
-    await executeStep(4, logs.find((item) => item.tool === 'evaluate_dispatch_plan')?.summary || '已完成');
-    if (revision !== demandRevision) { showChangedDemand(); return; }
+    await executeStep(0, '已解析', revision);
+    await executeStep(1, logs.find((item) => item.tool === 'query_factory_capabilities')?.summary || '已完成', revision);
+    await executeStep(2, logs.find((item) => item.tool === 'query_capacity_schedule')?.summary || '已完成', revision);
+    await executeStep(3, logs.find((item) => item.tool === 'query_material_status')?.summary || '已完成', revision);
+    await executeStep(4, logs.find((item) => item.tool === 'evaluate_dispatch_plan')?.summary || '已完成', revision);
+    if (revision !== demandRevision) return;
     const plan = aiResult.plan?.allocations?.map((item) => ({ factory: data.factories.find((factory) => factory.id === item.factory_id), quantity: item.quantity })).filter((item) => item.factory);
     renderResult(plan, aiResult.answer || 'Agent 已完成分析。', { ...order, bom_data: bomData }, aiResult.dashboard); $('#run-state').className = 'pill done'; $('#run-state').textContent = '执行完成';window.workspaceUI?.setExecution('success');showToast('工厂推荐分析已完成，请核对方案并选择工厂');
-  } catch (error) { if (revision !== demandRevision) { showChangedDemand(); return; } setFailure(error.message); window.workspaceUI?.setExecution('error');appendSelectionAction(); $('#run-state').className = 'pill'; $('#run-state').textContent = '可手动选厂'; showToast('分析暂不可用，仍可选择工厂提交需求。'); }
-  finally { $('#run-agent').disabled = false; $('#run-agent').querySelector('span').textContent = '→'; }
+  } catch (error) { if (revision !== demandRevision) return; setFailure(error.message); window.workspaceUI?.setExecution('error');appendSelectionAction(); $('#run-state').className = 'pill'; $('#run-state').textContent = '可手动选厂'; showToast('分析暂不可用，仍可选择工厂提交需求。'); }
+  finally { if (agentRequestController === controller) { agentRequestController = null; $('#run-agent').disabled = false; $('#run-agent').querySelector('span').textContent = '→'; } }
 });
 let localNotifications;
 function showToast(message,options={}) {
@@ -322,9 +324,13 @@ function showToast(message,options={}) {
 function invalidateProposal() {
   window.workspaceUI?.reset();
   demandRevision++; currentProposal = null;
-  const button = $('#select-factories'); if (button) { button.disabled = true; button.textContent = '需求已修改，请重新分析'; }
+  agentRequestController?.abort(); agentRequestController = null;
+  resetSteps();
+  $('#result-card').className = 'card result-card empty';
+  $('#result-card').innerHTML = '<div class="result-empty"><h2>等待分析生产需求</h2><p>完善 BOM 与生产要求后，点击分析获取工厂推荐和拆单方案。</p></div>';
+  $('#run-state').className = 'pill'; $('#run-state').textContent = '待分析';
+  $('#run-agent').disabled = false; $('#run-agent').querySelector('span').textContent = '→';
 }
-function showChangedDemand() { currentProposal = null; $('#result-card').innerHTML = '<p>需求已修改，请重新分析后选择工厂。</p>'; $('#run-state').textContent = '需求已修改'; }
 $('#order-form').addEventListener('input', invalidateProposal);
 window.addEventListener('message', event => {
   if (event.origin !== location.origin || event.source !== window.parent || event.data?.type !== 'brand-order-submitted' || event.data.requestId !== currentProposal?.requestId) return;

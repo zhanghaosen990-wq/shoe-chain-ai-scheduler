@@ -1,9 +1,13 @@
 // Recommendations are evidence for a request, never a promise of production capacity.
 const clean = text => String(text || '').normalize('NFKC').toLowerCase().replace(/[\s、，,；;。/＋+()（）-]/g, '');
-const normalized = text => clean(text).replace(/车缝|针车|缝纫|缝制/g, '缝').replace(/运动|休闲|板鞋/g, '休闲');
+const normalized = text => clean(text).replace(/车缝|针车|缝纫|缝制|平缝/g, '缝').replace(/裁断|裁切/g,'裁剪').replace(/熨烫|整烫定型/g,'整烫').replace(/运动|休闲|板鞋/g, '休闲');
 function domain(text) { if (/鞋|靴|凉拖/.test(text)) return 'footwear'; if (/礼服|女装|男装|服装|连衣裙|上衣|外套|裤|衬衫/.test(text)) return 'clothing'; if (/包袋|箱包|手袋|背包/.test(text)) return 'bags'; return null; }
-function compatible(order, factory) { const a=domain(order.category || order.bom_data?.style_name || ''); const domains=(factory.categories||[]).map(domain).filter(Boolean); return !a || !domains.length || domains.includes(a); }
+function orderDomain(order) { return domain(order.category||'')||domain(order.bom_data?.style_name||''); }
+function compatible(order, factory) { const a=orderDomain(order); const domains=(factory.categories||[]).map(domain).filter(Boolean); return !a || !domains.length || domains.includes(a); }
+// A shared craft family is related evidence only; specialized variants still need confirmation.
+const craftFamilies=[/裁剪|裁断|裁切/,/缝纫|缝制|车缝|针车|平缝|包缝|缝合|车线/,/整烫|熨烫/,/胶粘|粘合|贴合/,/成型|定型/,/刺绣|绣花/];
 function overlap(a,b) {
+ if(craftFamilies.some(pattern=>pattern.test(clean(a))&&pattern.test(clean(b))))return true;
  a=normalized(a);b=normalized(b);if(!a||!b)return false;
  if(a.includes(b)||b.includes(a))return true;
  const tokens=new Set(Array.from({length:Math.max(0,a.length-1)},(_,i)=>a.slice(i,i+2)));
@@ -29,16 +33,16 @@ function candidate(order,factory){
  const confirmed=required.filter(p=>provided.some(q=>clean(p)===clean(q)));
  const partial=required.filter(p=>!confirmed.includes(p)&&provided.some(q=>overlap(p,q)));
  const sameCategory=(factory.categories||[]).some(c=>clean(c)===clean(order.category));
- const categoryRelated=(factory.categories||[]).some(c=>overlap(c,order.category))||Boolean(domain(order.category)&&compatible(order,factory));
+ const categoryRelated=(factory.categories||[]).some(c=>overlap(c,order.category))||Boolean(orderDomain(order)&&(factory.categories||[]).some(c=>domain(c)===orderDomain(order)));
  const reasons=[];
  if(sameCategory)reasons.push(`已登记品类：${order.category}`);else if(categoryRelated)reasons.push(`相关品类：${(factory.categories||[]).join('、')}，具体款式需确认`);
  if(confirmed.length)reasons.push(`工厂资料包含：${confirmed.join('、')}`);
  if(partial.length)reasons.push(`存在相近工艺：${partial.join('、')}，需确认适配`);
  const capacity=assessFactory(order,factory);
- return {factory_id:factory.id,name:factory.name,score:(sameCategory?40:categoryRelated?20:0)+confirmed.length*10+partial.length*5,reasons,confirmed_processes:confirmed,unconfirmed_processes:required.filter(p=>!confirmed.includes(p)),registered_processes:provided,moq:factory.min_order_quantity,available_capacity:capacity.available,risks:capacity.risks,semantic_note:null};
+ return {factory_id:factory.id,name:factory.name,score:(sameCategory?40:categoryRelated?20:0)+confirmed.length*10+partial.length*5,reasons,category_match:sameCategory,category_related:categoryRelated,related_processes:partial,confirmed_processes:confirmed,unconfirmed_processes:required.filter(p=>!confirmed.includes(p)),registered_processes:provided,moq:factory.min_order_quantity,available_capacity:capacity.available,risks:capacity.risks,semantic_note:null};
 }
 async function recommendFactories(order,factories,config={}){
- const pool=factories.filter(f=>compatible(order,f));
+ const pool=factories.filter(f=>f.categories?.some(c=>clean(c))&&f.process_capabilities?.some(p=>clean(p))&&compatible(order,f)&&available(f,order.deadline_days)>0);
  const candidates=pool.map(f=>candidate(order,f));let mode='rules',notice='基于现有资料推荐，请工厂确认工艺、报价和排期。';
  if(config.apiKey){
   try{

@@ -38,7 +38,7 @@
   }
   function restore(){if(!undo)return;const saved=undo;clearBomSelection();bomFile=saved.bomFile;bomHints=saved.bomHints;productionBaseline=saved.productionBaseline;lastInferred=saved.lastInferred;autoValues=saved.autoValues;bomInteraction=saved.interaction;sampleImages=saved.sampleImages;for(const entry of saved.fields){const el=document.getElementById(entry.id);if(el.tagName==='SELECT'&&![...el.options].some(o=>o.value===entry.value))el.add(new Option(entry.value,entry.value));el.value=entry.value;if(el.type==='checkbox')el.checked=entry.checked;}demo=saved.demo;$('#demo-bom-preview').hidden=!saved.preview;if(saved.preview)$('#demo-bom-preview').src=saved.preview;$('#bom-source-hint').textContent=saved.hint;undo=null;$('#undo-demo').hidden=true;renderBomTags();renderBomFileState();renderSamplePreview();update();showToast('已恢复填充前的资料，旧推荐需要重新分析');}
   $('#fill-demo').addEventListener('click',fill);$('#undo-demo').addEventListener('click',restore);
-  $('#order-form').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.isComposing||e.keyCode===229))e.preventDefault();});
+  $('#order-form').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.isComposing||e.keyCode===229||e.target.matches('input,select')))e.preventDefault();});
   $('#order-form').addEventListener('input',update);
   function sendHeight(){if(!embedded)return;const height=Math.ceil(document.querySelector('.shell').getBoundingClientRect().height);if(height>=100)post({type:'shoe-ui:height',height});}
   const resize=new ResizeObserver(sendHeight);resize.observe(document.querySelector('.shell'));
