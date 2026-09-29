@@ -1,0 +1,42 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const {spawn}=require('node:child_process');
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {createStore}=require('./portal-store');
+(async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'shoe-auto-split-')),stateFile=path.join(dir,'state.json');
+ const fixture=createStore(stateFile).snapshot();
+ fixture.orders=[];fixture.reviews=[];
+ fixture.factories=fixture.factories.filter(f=>['FAC-A','FAC-B'].includes(f.id)).map(f=>({...f,dailyCapacity:f.id==='FAC-A'?50:30,min_order_quantity:300}));
+ fs.writeFileSync(stateFile,JSON.stringify(fixture));
+ const server=spawn(process.execPath,[path.join(__dirname,'server.js')],{env:{...process.env,AI_PROVIDER:'openai',OPENAI_API_KEY:'',PORT:'4176',PORTAL_STATE_FILE:stateFile},stdio:['ignore','pipe','pipe']});let browser;
+ try{
+  await new Promise((resolve,reject)=>{server.stdout.once('data',resolve);server.once('error',reject);server.once('exit',c=>reject(Error('server '+c)));});
+  browser=await chromium.launch({channel:'chrome',headless:true});
+  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(12000);
+  await page.goto('http://localhost:4176');
+  await page.getByRole('button',{name:'登录',exact:true}).click();
+  const login=page.getByRole('dialog',{name:'登录账号',exact:true});
+  await login.getByLabel('账号 / 手机号').fill('brand_01');await login.getByLabel('密码',{exact:true}).fill('123456');await login.getByRole('button',{name:'登录',exact:true}).click();await login.waitFor({state:'hidden'});
+  await page.getByRole('button',{name:/发布生产需求/}).click();const frame=page.frameLocator('iframe');
+  await frame.locator('#bom-style-name').fill('自动拆单回归鞋');await frame.locator('#bom-sku-code').fill('AUTO-800');
+  await frame.getByText('编辑工艺关键词',{exact:true}).click();await frame.locator('#bom-craftsmanship').fill('头层牛皮鞋面；固特异外观线；橡胶大底');
+  await frame.locator('#category').selectOption('商务男鞋');await frame.locator('#quantity').fill('800');await frame.locator('#deadline').fill('10');await frame.locator('#splittable').check();
+  const responsePromise=page.waitForResponse(r=>r.url().endsWith('/api/agent'));
+  await frame.locator('#run-agent').click();const result=await (await responsePromise).json();
+  assert.deepEqual(result.plan.allocations,[{factory_id:'FAC-A',quantity:500},{factory_id:'FAC-B',quantity:300}]);
+  await frame.locator('#select-factories:not(:disabled)').click();const modal=page.getByRole('dialog');await modal.waitFor();
+  const first=modal.locator('.candidate-card').filter({hasText:'瓯越精工鞋业有限公司'}),second=modal.locator('.candidate-card').filter({hasText:'楠江鞋业制造有限公司'});
+  assert.equal(await first.getByRole('spinbutton').inputValue(),'500','automatic allocation must reach the modal');
+  assert.equal(await second.getByRole('spinbutton').inputValue(),'300');
+  assert.equal(await modal.getByRole('button',{name:'核对分配与风险'}).isEnabled(),true);
+  await first.getByRole('spinbutton').fill('499');assert.equal(await modal.getByRole('button',{name:'核对分配与风险'}).isDisabled(),true);await first.getByRole('spinbutton').fill('500');
+  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await modal.getByRole('button',{name:'核对分配与风险'}).click();await modal.getByRole('checkbox').check();await modal.getByRole('button',{name:'提交给所选工厂'}).click();await modal.waitFor({state:'hidden'});
+  const orders=JSON.parse(fs.readFileSync(stateFile)).orders;
+  assert.deepEqual(orders.map(o=>[o.factoryId,o.quantity,o.status]).sort(),[['FAC-A',500,'pending'],['FAC-B',300,'pending']]);
+  assert.equal(new Set(orders.map(o=>o.rootDemandId)).size,1);assert.deepEqual(errors,[]);
+  console.log('PASS: actual API → iframe → portal → automatic 500/300 allocation → two persisted factory orders; manual adjustment and mobile layout.');
+ }finally{if(browser)await browser.close();server.kill();fs.rmSync(dir,{recursive:true,force:true});}
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -47,7 +47,7 @@
   }
   function renderDashboard(dashboard, answer, allocationHtml = '') {
     return `<div class="metric-grid">${dashboard.metrics.map(m => `<article class="metric-card"><span>${escape(m.label)}</span><strong>${escape(m.value)}</strong><small>${escape(m.note)}</small></article>`).join('')}</div>
-      <div class="result-top"><div><span class="success-label">生产协同建议</span><h2>${dashboard.selectionMode ? '推荐已完成，请选择工厂' : dashboard.canApprove ? '候选方案已生成' : '请先确认订单与接单条件'}</h2></div><span class="decision-badge ${dashboard.tone === 'success' ? 'success' : 'warning'}">${escape(dashboard.status)}</span></div>
+      <div class="result-top"><div><span class="success-label">生产协同建议</span><h2>${dashboard.selectionMode ? (dashboard.canApprove ? '自动分配方案已生成，请核对' : '推荐已完成，请选择工厂') : dashboard.canApprove ? '候选方案已生成' : '请先确认订单与接单条件'}</h2></div><span class="decision-badge ${dashboard.tone === 'success' ? 'success' : 'warning'}">${escape(dashboard.status)}</span></div>
       <ul class="risk-list">${dashboard.risks.map(r => `<li><span aria-hidden="true">⚠</span>${escape(r)}</li>`).join('')}</ul>
       ${dashboard.canApprove ? allocationHtml : ''}
       <details class="full-report"><summary>查看完整分析报告</summary><div class="report-body">${escape(answer || '暂无详细报告。')}</div></details>`;
